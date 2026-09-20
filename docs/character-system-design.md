@@ -69,10 +69,26 @@ tên material chính xác cần chốt với hoạ sĩ khi duyệt base mesh (đ
 động chuyển về lại `idle` khi phát xong, đúng mô tả "ăn mừng khi lên level" rồi trở lại trạng
 thái đứng yên trên màn hình chính.
 
+## Mesh placeholder để kiểm thử pipeline trước khi có asset thật
+
+`tools/blender/generate_placeholder_character.py` dựng một mesh humanoid thô (dùng Skin
+modifier của Blender trên một bộ khung xương đơn giản) rồi export ra
+`assets/characters/base_mesh_placeholder.glb` — **không phải nghệ thuật hoàn thiện**, chỉ để
+`App.tsx` có file thật để load ngay, chứng minh toàn bộ luồng (load `.glb`, đọc 18 blend
+shape theo đúng tên, rig, animation `idle`/`celebrate`/`showcase`) chạy được trước khi họa sĩ
+giao bài. File tuân thủ các ràng buộc đo được của spec: cao 1.75 m, gốc toạ độ giữa hai bàn
+chân, A-pose, quy ước trục glTF, tên blend shape khớp chính xác mục 4/4b.
+
+`tools/blender/render_preview.py` render nhanh vài trạng thái blend shape (mặc định, và tổ
+hợp `body_muscle` 0.8 + `body_fat` 0.6 + `shoulder_wide` 1.0 mà spec yêu cầu kiểm tra kỹ) ra
+PNG để xem không cần mở giao diện Blender.
+
+Khi họa sĩ giao `base_mesh.glb` thật, chỉ cần thay file trong `assets/characters/` và sửa
+đường dẫn `require(...)` trong `App.tsx`; toàn bộ code trong `src/character/` không cần đổi
+vì chỉ phụ thuộc vào tên blend shape, không phụ thuộc hình dáng mesh.
+
 ## Việc còn để trống, chờ asset thật
 
-- `assets/characters/` hiện trống — `App.tsx` cố tình để `BASE_MESH_URI = null` và hiện màn
-  hình chờ, để tránh Metro bundler crash vì `require()` một file không tồn tại.
 - Chưa viết test cho `computeBlendShapeValues` — nên thêm khi chốt công thức map thật với
   team dữ liệu (hiện các hệ số trong `blendShapeMapping.ts`, ví dụ dải ±30cm cho chiều cao,
   là giá trị giả định cần xác nhận lại).

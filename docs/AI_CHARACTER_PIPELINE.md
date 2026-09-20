@@ -1,6 +1,9 @@
 # AI Character Pipeline v2
 
-**Every output of this pipeline is `PROTOTYPE` / `AI_GENERATED` / `NOT_PRODUCTION_APPROVED`.**
+**Every output of this pipeline is `PROTOTYPE` / `PROCEDURAL_GENERATED` / `NOT_PRODUCTION_APPROVED`.**
+
+> Label note: `PROCEDURAL_GENERATED`, not `AI_GENERATED` — this iteration uses a local
+> deterministic procedural generator, not an external AI model.
 
 There is no human 3D artist and the project does not block on one. This pipeline produces
 a parametric human base, normalizes and validates it through Blender, and generates three
@@ -37,18 +40,28 @@ blender --background --python tools/blender/render_character_qa.py -- \
     --outdir assets/characters/ai_prototype/qa
 ```
 
-## How the parametric human works
+## How the procedural human works (watertight rebuild)
 
-The body is built from **cross-section rings** (16 verts each) stacked into tubes:
-torso+head as one tube, plus two leg tubes and two arm tubes. Each ring's width/depth
-responds to body parameters (`fat`, `muscle`, `thin`, and the per-region morph params),
-so a large `fat` value genuinely inflates belly, waist, hips, chest and face fullness —
-which the capsule placeholder could not do.
+The first v2 attempt built the body from separate cross-section tubes; a topology review
+found that gave **80 boundary edges and 5 disconnected shells** with visible seams and a
+shoulder spike. That approach is abandoned.
 
-Because `generate_vertices(params)` always emits the **same vertex order and faces**, the
-three variants share one topology, and every shape key is a real
-`generate_vertices(perturbed) - generate_vertices(base)` vertex delta. `height_tall` /
-`height_short` scale the body about Z=0 so feet stay planted.
+The body is now built **once** with Blender's **Skin modifier** on a connected, branching
+skeleton (spine with belly/waist/chest nodes, plus arm and leg chains, with elliptical
+radii for real torso volume). The Skin modifier welds the arms and legs into the torso as
+a **single watertight manifold surface**: 0 boundary edges, 0 non-manifold edges, 1
+connected component, no seams. That frozen mesh `M` (its vertices + faces) is the one
+canonical topology.
+
+- `average.glb` = `M` (canonical neutral base) + the 10 body morphs.
+- `lean.glb` / `fat.glb` = the **same topology** `M` with a thin / fat displacement field
+  baked into the basis — comparison outputs, not separate progression bases.
+
+Every variant basis and every shape key is an **analytic displacement of the same frozen
+`M` vertex list** (radial-falloff pushes for girth, a Z-scale about the ground for
+height), so topology is identical across all of them and all morphs preserve it. The
+`shoulder_wide` morph uses a broad, smoothly-falling-off region push (not a single-ring
+scale), so there is no needle/spike at any value.
 
 Rig: a hand-built armature using the exact spec bone names, with branch bones
 (`chest->shoulder`, `hips->thigh`) intentionally unconnected. Rigify is available but its
@@ -57,6 +70,8 @@ naming does not match the required convention (see `PLUGIN_STATUS.md`).
 ## Honest status — read this before trusting any output
 
 ### 1. What is technically validated (measured, not eyeballed)
+- **Watertight manifold**: 0 boundary edges, 0 non-manifold edges, 0 loose vertices, 1 connected component (checked by welding the GLB indices by position). Confirmed on all three variants and, via the render QA, at every morph value and stress combo.
+- **Topology preserved by every morph**: vertex count is constant (2700) across all morph states; identical topology (2700 verts / 5392 tris) across lean/average/fat.
 - Bounds: exactly 1.75 m tall, feet at Z=0 (min_Y=0.0000 in the Y-up GLB), origin between feet.
 - Axis: Blender Z-up source exported as glTF Y-up; mesh node transforms are identity.
 - Skin: `JOINTS_0`/`WEIGHTS_0` present, weight sums ~1.0, max 4 influences, zero zero-weight verts.
@@ -64,15 +79,14 @@ naming does not match the required convention (see `PLUGIN_STATUS.md`).
 - 10 body morph names + count exact; 3 animation clips with correct durations.
 - Height morphs keep feet on the ground at value 1.0 (checked from the exported morph deltas).
 - All three variants pass the validator with zero required failures (UV absence is a WARN).
-- Consistent topology across variants: 533 vertices / 976 triangles each.
 
 ### 2. What is visually plausible (looks right, not proven)
-- Three clearly distinct body types; the fat variant reads as fuller in abdomen, waist, chest, hips, face and silhouette (see `qa/*_contact_sheet.png` and the 3-up variant render).
-- Each morph sweeps sensibly across 0.25/0.5/0.75, and the three stress combos hold together without exploding.
-- These are heuristic/visual judgements on a low-poly prototype, not a guarantee of deformation quality.
+- Three clearly distinct, seamless body types; the fat variant reads as fuller in abdomen, waist, chest, hips and face, with a rounder silhouette (see `qa/*_contact_sheet.png` and the 3-up variant render).
+- Each morph sweeps smoothly across 0.25/0.5/0.75 with no spike (including `shoulder_wide`), and the three stress combos hold together.
+- These are visual judgements on a low-poly prototype; smoothness/anatomical quality is not claimed to be production grade.
 
 ### 3. What is still only a placeholder
-- Tube/cross-section topology, not a sculpted production base mesh: no clean facial edge flow, minimal hands/feet, and overlapping tube seams at the shoulders/hips (expected self-intersection there).
+- Procedural Skin-modifier surface — watertight and manifold, but NOT a sculpted production base mesh: no deliberate facial edge flow, minimal hands/feet, generic flow from the Skin modifier.
 - No UV and no texture.
 - Auto envelope skin weights, not hand-painted.
 - `NOT_PRODUCTION_APPROVED` — use for pipeline validation and proportion prototyping only.

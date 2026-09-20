@@ -1,7 +1,9 @@
 {
-  "labels": ["PROTOTYPE", "AI_GENERATED", "NOT_PRODUCTION_APPROVED"],
+  "labels": ["PROTOTYPE", "PROCEDURAL_GENERATED", "NOT_PRODUCTION_APPROVED"],
+  "label_note": "PROCEDURAL_GENERATED (not AI_GENERATED): this iteration uses a local deterministic procedural generator, not an external AI model.",
   "generated": "2026-09-20",
-  "source_method": "local parametric cross-section (lofted-ring) human generator",
+  "source_method": "local procedural Skin-modifier human -> single watertight manifold surface",
+  "topology_method": "Blender Skin modifier on a connected branching skeleton welds arms+legs into the torso as one manifold shell (0 boundary edges, 0 non-manifold edges, 1 connected component). Replaces the earlier tube prototype which had 80 boundary edges and 5 disconnected shells.",
   "why_local": "No external AI mesh service reachable (Tripo/Meshy HTTP 000, no API keys) and no MPFB/MB-Lab addon installed in this environment; pipeline rule 4 fallback. See docs/PLUGIN_STATUS.md.",
   "tooling": {
     "generator": {
@@ -30,18 +32,23 @@
   },
   "topology": {
     "consistent_across_variants": true,
-    "ring_segments": 16,
-    "vertices": 533,
-    "triangles": 976,
-    "note": "same vertex order + faces for lean/average/fat and every shape key, so morphs are real topology-preserving vertex deltas"
+    "vertices": 2700,
+    "triangles": 5392,
+    "watertight": true,
+    "boundary_edges": 0,
+    "non_manifold_edges": 0,
+    "connected_components": 1,
+    "note": "one frozen Skin-modifier base M; average = M, lean/fat = M + a thin/fat displacement baked into the basis; every shape key is an analytic displacement of the same frozen vertex list, so topology is identical everywhere"
   },
+  "canonical_base": "average.glb",
+  "comparison_outputs": ["lean.glb", "fat.glb"],
   "input_parameters": {
-    "variants": {
-      "lean":    {"thin": 0.85, "muscle": 0.30, "fat": 0.0},
-      "average": {"fat": 0.35, "muscle": 0.30},
-      "fat":     {"fat": 0.95, "muscle": 0.15}
+    "variant_fields": {
+      "average": "identity (canonical neutral base)",
+      "lean": "thin displacement field baked into basis",
+      "fat": "fat displacement field baked into basis (belly/waist/hips/chest/face fullness)"
     },
-    "parameter_meaning": "per-region girth response; fat inflates belly/waist/hips/chest/face, muscle widens shoulders/chest/arms, thin slims all"
+    "note": "lean/fat are comparison outputs derived from the same frozen average base, NOT separate progression bases"
   },
   "output_dimensions": {
     "height_m": 1.75,
@@ -73,20 +80,24 @@
     "qa": "assets/characters/ai_prototype/qa/ (per-variant validation.json, qa_report.json, contact_sheet.png, morph sweeps, combos)"
   },
   "validator_result": {
-    "lean": "PASS (0 required failures; UV absent = WARN)",
     "average": "PASS (0 required failures; UV absent = WARN)",
+    "lean": "PASS (0 required failures; UV absent = WARN)",
     "fat": "PASS (0 required failures; UV absent = WARN)",
     "checks": ["bounds 1.75m", "feet on ground", "Y-up", "root transform identity",
-               "skin JOINTS_0/WEIGHTS_0", "weight sum ~1", "max 4 influences",
-               "no zero-weight verts", "10 morph names + count", "21 spec bones ARE skin members",
-               "parent-child hierarchy", "3 anim clips + durations", "bind-pose joint positions",
-               "height morph feet grounded"]
+               "no boundary edges", "manifold (no non-manifold edges)", "no loose verts",
+               "single connected component", "skin JOINTS_0/WEIGHTS_0", "weight sum ~1",
+               "max 4 influences", "no zero-weight verts", "10 morph names + count",
+               "21 spec bones ARE skin members", "parent-child hierarchy",
+               "3 anim clips + durations", "bind-pose joint positions", "height morph feet grounded"]
+  },
+  "qa_result": {
+    "average": "0 flags", "lean": "0 flags", "fat": "0 flags",
+    "hard_gates": "boundary edge, non-manifold edge, feet-off-ground, or vertex-count change at any morph state; inward-normal fraction is informational only and never gates (review item 8)"
   },
   "known_limitations": [
-    "Cross-section tube topology, NOT a sculpted production base mesh — no clean facial edge flow, no hands/feet detail, tube seams where limbs meet the torso overlap (expected self-intersection at joints).",
+    "Procedural Skin-modifier surface, watertight and manifold, but NOT a sculpted production base mesh: no deliberate facial edge flow, minimal hands/feet detail, generic quad-ish flow from the Skin modifier.",
     "No UV / no texture (validator reports UV absence as a WARN, not a failure).",
-    "shoulder_wide at value 1.0 produces a slightly spiky deltoid (low ring count).",
-    "Face is out of scope: head shape + approximate face width only; NO facial identity claim. Eye landmarks are a separate proxy experiment (docs/stylization-prototype-v1.1.md).",
+    "Face is out of scope: head shape + approximate face fullness only; NO facial identity claim. Eye landmarks are a separate proxy experiment (docs/stylization-prototype-v1.1.md).",
     "Auto (envelope) skin weights, not hand-painted; adequate for prototype deformation, not production.",
     "NOT PRODUCTION APPROVED. Suitable for pipeline validation and body-proportion prototyping only."
   ]

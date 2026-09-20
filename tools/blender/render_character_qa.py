@@ -27,6 +27,7 @@ import os
 import sys
 
 import bpy
+import bmesh
 import mathutils
 
 Vector = mathutils.Vector
@@ -98,31 +99,45 @@ def place_camera(cam, view, center, height):
 
 
 def mesh_metrics(obj, deps):
+    """Bounds + HARD topology facts (boundary / non-manifold edge counts, vertex
+    count) computed from the evaluated, morph-applied mesh via bmesh. The topology
+    numbers are authoritative pass/fail signals; the inward-normal fraction is kept
+    only as an informational hint and never gates anything (review item 8)."""
     ev = obj.evaluated_get(deps)
     me = ev.to_mesh()
     mw = obj.matrix_world
     zs = [(mw @ v.co).z for v in me.vertices]
     xs = [(mw @ v.co).x for v in me.vertices]
     ys = [(mw @ v.co).y for v in me.vertices]
-    # flipped-normal heuristic: fraction of faces whose normal points toward the
-    # vertical axis through the body centroid (roughly "inward").
+
+    bm = bmesh.new()
+    bm.from_mesh(me)
+    boundary = sum(1 for e in bm.edges if len(e.link_faces) == 1)
+    non_manifold = sum(1 for e in bm.edges if len(e.link_faces) > 2)
+    vert_count = len(bm.verts)
+    # informational only:
     cx = sum(xs) / len(xs)
     cy = sum(ys) / len(ys)
     inward = 0
-    for poly in me.polygons:
-        c = mw @ poly.center
-        n = (mw.to_3x3() @ poly.normal)
+    for f in bm.faces:
+        c = mw @ f.calc_center_median()
+        n = mw.to_3x3() @ f.normal
         outward = Vector((c.x - cx, c.y - cy, 0.0))
         if outward.length > 1e-5 and n.dot(outward) < 0:
             inward += 1
-    frac_inward = inward / max(1, len(me.polygons))
+    frac_inward = inward / max(1, len(bm.faces))
+    bm.free()
+
     metrics = {
         "min_z": round(min(zs), 4),
         "max_z": round(max(zs), 4),
         "height_m": round(max(zs) - min(zs), 4),
         "width_m": round(max(xs) - min(xs), 4),
         "depth_m": round(max(ys) - min(ys), 4),
-        "faces_inward_normal_frac": round(frac_inward, 3),
+        "boundary_edges": boundary,
+        "non_manifold_edges": non_manifold,
+        "vertex_count": vert_count,
+        "faces_inward_normal_frac_INFO_ONLY": round(frac_inward, 3),
     }
     ev.to_mesh_clear()
     return metrics
@@ -202,22 +217,32 @@ def main():
     mesh_obj = body_meshes[0]
 
     report = {"label": WATERMARK.split(" / "), "variant": variant, "input": inp,
-              "heuristic_note": "faces_inward_normal_frac, self_intersection and silhouette are "
-                                "coarse triage heuristics on a low-poly prototype, not guarantees",
+              "gating_note": "HARD failures: any boundary edge, any non-manifold edge, feet off "
+                             "ground (min_z), or a morph changing the vertex count (topology not "
+                             "preserved). faces_inward_normal_frac_INFO_ONLY never gates.",
               "neutral": {}, "morph_sweeps": {}, "combos": {}, "flags": []}
     sweep_imgs = []
 
-    # neutral three views. The neutral front inward-normal fraction is the BASELINE:
-    # a multi-limb body legitimately has concave regions (armpits, crotch, neck), so
-    # only a morph that RAISES this fraction above baseline suggests real inversion.
+    def hard_check(tag, m, ref_vcount):
+        if m["boundary_edges"] > 0:
+            report["flags"].append(f"{tag}: {m['boundary_edges']} boundary edge(s) (open hole)")
+        if m["non_manifold_edges"] > 0:
+            report["flags"].append(f"{tag}: {m['non_manifold_edges']} non-manifold edge(s)")
+        if abs(m["min_z"]) > 0.02:
+            report["flags"].append(f"{tag}: min_z={m['min_z']} (feet off ground)")
+        if ref_vcount is not None and m["vertex_count"] != ref_vcount:
+            report["flags"].append(f"{tag}: vertex_count {m['vertex_count']} != {ref_vcount} (topology not preserved)")
+
+    # neutral three views
     set_morphs(mesh_obj, {})
     for view in ("front", "side", "three_quarter"):
         pth = os.path.join(outdir, f"{variant}_neutral_{view}.png")
         m = render(scene, cam, mesh_obj, pth, view)
         label(pth, f"{variant} neutral {view}", f"h={m['height_m']}m minZ={m['min_z']}")
         report["neutral"][view] = m
-    baseline_inward = report["neutral"]["front"]["faces_inward_normal_frac"]
-    report["baseline_inward_normal_frac"] = baseline_inward
+    ref_vcount = report["neutral"]["front"]["vertex_count"]
+    report["reference_vertex_count"] = ref_vcount
+    hard_check("neutral", report["neutral"]["front"], ref_vcount)
 
     # morph sweeps
     for morph in BODY_MORPHS:
@@ -229,14 +254,7 @@ def main():
             label(pth, f"{morph} = {val:.2f}", f"minZ={m['min_z']} h={m['height_m']}")
             report["morph_sweeps"][morph].append({"value": val, **m})
             sweep_imgs.append(pth)
-            # feet-on-ground check (exact): every morph must keep min_z ~0
-            if abs(m["min_z"]) > 0.02:
-                report["flags"].append(f"{morph}={val:.2f} min_z={m['min_z']} (feet off ground?)")
-            # inversion is flagged only relative to baseline (see note above)
-            if m["faces_inward_normal_frac"] > baseline_inward + 0.05:
-                report["flags"].append(
-                    f"{morph}={val:.2f} inward frac {m['faces_inward_normal_frac']} "
-                    f"> baseline {baseline_inward}+0.05 (possible flipped normals)")
+            hard_check(f"{morph}={val:.2f}", m, ref_vcount)
 
     # combos
     for name, values in COMBOS.items():
@@ -246,12 +264,7 @@ def main():
         label(pth, name.replace("combo_", ""), f"minZ={m['min_z']} h={m['height_m']}")
         report["combos"][name] = {"values": values, **m}
         sweep_imgs.append(pth)
-        if abs(m["min_z"]) > 0.02:
-            report["flags"].append(f"{name} min_z={m['min_z']} (feet off ground?)")
-        if m["faces_inward_normal_frac"] > baseline_inward + 0.05:
-            report["flags"].append(
-                f"{name} inward frac {m['faces_inward_normal_frac']} "
-                f"> baseline {baseline_inward}+0.05 (possible flipped normals)")
+        hard_check(name, m, ref_vcount)
 
     contact_sheet(sweep_imgs, os.path.join(outdir, f"{variant}_contact_sheet.png"))
     with open(os.path.join(outdir, f"{variant}_qa_report.json"), "w") as f:

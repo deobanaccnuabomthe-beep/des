@@ -6,31 +6,40 @@
   ],
   "variant": "fat",
   "input": "assets/characters/ai_prototype/fat.glb",
-  "heuristic_note": "faces_inward_normal_frac, self_intersection and silhouette are coarse triage heuristics on a low-poly prototype, not guarantees",
+  "gating_note": "HARD failures: any boundary edge, any non-manifold edge, feet off ground (min_z), or a morph changing the vertex count (topology not preserved). faces_inward_normal_frac_INFO_ONLY never gates.",
   "neutral": {
     "front": {
       "min_z": 0.0,
       "max_z": 1.75,
       "height_m": 1.75,
-      "width_m": 1.1113,
-      "depth_m": 0.4054,
-      "faces_inward_normal_frac": 0.16
+      "width_m": 1.0747,
+      "depth_m": 0.3358,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "vertex_count": 2698,
+      "faces_inward_normal_frac_INFO_ONLY": 0.263
     },
     "side": {
       "min_z": 0.0,
       "max_z": 1.75,
       "height_m": 1.75,
-      "width_m": 1.1113,
-      "depth_m": 0.4054,
-      "faces_inward_normal_frac": 0.16
+      "width_m": 1.0747,
+      "depth_m": 0.3358,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "vertex_count": 2698,
+      "faces_inward_normal_frac_INFO_ONLY": 0.263
     },
     "three_quarter": {
       "min_z": 0.0,
       "max_z": 1.75,
       "height_m": 1.75,
-      "width_m": 1.1113,
-      "depth_m": 0.4054,
-      "faces_inward_normal_frac": 0.16
+      "width_m": 1.0747,
+      "depth_m": 0.3358,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "vertex_count": 2698,
+      "faces_inward_normal_frac_INFO_ONLY": 0.263
     }
   },
   "morph_sweeps": {
@@ -40,45 +49,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.257
       },
       {
         "value": 0.5,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3359,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.251
       },
       {
         "value": 0.75,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.336,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.246
       },
       {
         "value": 1.0,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4166,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.336,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.24
       }
     ],
     "body_fat": [
@@ -87,45 +111,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
         "min_z": 0.0,
-        "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1118,
-        "depth_m": 0.4288,
-        "faces_inward_normal_frac": 0.156
+        "max_z": 1.7507,
+        "height_m": 1.7507,
+        "width_m": 1.0747,
+        "depth_m": 0.3449,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.5,
         "min_z": 0.0,
-        "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1122,
-        "depth_m": 0.4523,
-        "faces_inward_normal_frac": 0.156
+        "max_z": 1.7513,
+        "height_m": 1.7513,
+        "width_m": 1.0747,
+        "depth_m": 0.3539,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.75,
         "min_z": 0.0,
-        "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1126,
-        "depth_m": 0.4757,
-        "faces_inward_normal_frac": 0.156
+        "max_z": 1.752,
+        "height_m": 1.752,
+        "width_m": 1.0747,
+        "depth_m": 0.363,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.264
       },
       {
         "value": 1.0,
         "min_z": 0.0,
-        "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1131,
-        "depth_m": 0.4991,
-        "faces_inward_normal_frac": 0.156
+        "max_z": 1.7526,
+        "height_m": 1.7526,
+        "width_m": 1.0747,
+        "depth_m": 0.3721,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.264
       }
     ],
     "body_thin": [
@@ -134,45 +173,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.3879,
-        "faces_inward_normal_frac": 0.164
+        "width_m": 1.0746,
+        "depth_m": 0.3324,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.27
       },
       {
         "value": 0.5,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.3703,
-        "faces_inward_normal_frac": 0.164
+        "width_m": 1.0746,
+        "depth_m": 0.3291,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.275
       },
       {
         "value": 0.75,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.3591,
-        "faces_inward_normal_frac": 0.164
+        "width_m": 1.0745,
+        "depth_m": 0.3257,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.277
       },
       {
         "value": 1.0,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.3591,
-        "faces_inward_normal_frac": 0.164
+        "width_m": 1.0745,
+        "depth_m": 0.3223,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.282
       }
     ],
     "shoulder_wide": [
@@ -181,45 +235,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.5,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.264
       },
       {
         "value": 0.75,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.264
       },
       {
         "value": 1.0,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.264
       }
     ],
     "waist_narrow": [
@@ -228,45 +297,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3357,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.5,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3357,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.75,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3356,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 1.0,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3356,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       }
     ],
     "chest_thick": [
@@ -275,45 +359,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.5,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4139,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3389,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.264
       },
       {
         "value": 0.75,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4413,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3493,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.264
       },
       {
         "value": 1.0,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4687,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3597,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.266
       }
     ],
     "arm_mass": [
@@ -322,45 +421,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0848,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.5,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.156
+        "width_m": 1.0958,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.75,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.152
+        "width_m": 1.1076,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.262
       },
       {
         "value": 1.0,
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.152
+        "width_m": 1.1194,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.26
       }
     ],
     "leg_mass": [
@@ -369,45 +483,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
-        "min_z": 0.0,
+        "min_z": -0.0005,
         "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.156
+        "height_m": 1.7505,
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.256
       },
       {
         "value": 0.5,
-        "min_z": 0.0,
+        "min_z": -0.0009,
         "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.152
+        "height_m": 1.7509,
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.247
       },
       {
         "value": 0.75,
-        "min_z": 0.0,
+        "min_z": -0.0014,
         "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.148
+        "height_m": 1.7514,
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.243
       },
       {
         "value": 1.0,
-        "min_z": 0.0,
+        "min_z": -0.0019,
         "max_z": 1.75,
-        "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.143
+        "height_m": 1.7519,
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.238
       }
     ],
     "height_tall": [
@@ -416,45 +545,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
-        "min_z": 0.0005,
-        "max_z": 1.7767,
-        "height_m": 1.7762,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "min_z": 0.0002,
+        "max_z": 1.7764,
+        "height_m": 1.7763,
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.5,
-        "min_z": 0.0009,
-        "max_z": 1.8034,
+        "min_z": 0.0004,
+        "max_z": 1.8029,
         "height_m": 1.8025,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.75,
-        "min_z": 0.0014,
-        "max_z": 1.8301,
+        "min_z": 0.0005,
+        "max_z": 1.8293,
         "height_m": 1.8288,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 1.0,
-        "min_z": 0.0018,
-        "max_z": 1.8568,
+        "min_z": 0.0007,
+        "max_z": 1.8557,
         "height_m": 1.855,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       }
     ],
     "height_short": [
@@ -463,45 +607,60 @@
         "min_z": 0.0,
         "max_z": 1.75,
         "height_m": 1.75,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.25,
-        "min_z": -0.0005,
-        "max_z": 1.7233,
+        "min_z": -0.0002,
+        "max_z": 1.7236,
         "height_m": 1.7238,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.5,
-        "min_z": -0.0009,
-        "max_z": 1.6966,
+        "min_z": -0.0004,
+        "max_z": 1.6971,
         "height_m": 1.6975,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 0.75,
-        "min_z": -0.0014,
-        "max_z": 1.6699,
+        "min_z": -0.0005,
+        "max_z": 1.6707,
         "height_m": 1.6713,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       },
       {
         "value": 1.0,
-        "min_z": -0.0018,
-        "max_z": 1.6432,
+        "min_z": -0.0007,
+        "max_z": 1.6443,
         "height_m": 1.645,
-        "width_m": 1.1113,
-        "depth_m": 0.4054,
-        "faces_inward_normal_frac": 0.16
+        "width_m": 1.0747,
+        "depth_m": 0.3358,
+        "boundary_edges": 0,
+        "non_manifold_edges": 0,
+        "vertex_count": 2698,
+        "faces_inward_normal_frac_INFO_ONLY": 0.263
       }
     ]
   },
@@ -513,37 +672,46 @@
         "shoulder_wide": 1.0
       },
       "min_z": 0.0,
-      "max_z": 1.75,
-      "height_m": 1.75,
-      "width_m": 1.1124,
-      "depth_m": 0.4616,
-      "faces_inward_normal_frac": 0.156
+      "max_z": 1.7516,
+      "height_m": 1.7516,
+      "width_m": 1.0747,
+      "depth_m": 0.3578,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "vertex_count": 2698,
+      "faces_inward_normal_frac_INFO_ONLY": 0.249
     },
     "combo_fat_tall": {
       "values": {
         "body_fat": 1.0,
         "height_tall": 1.0
       },
-      "min_z": 0.0018,
-      "max_z": 1.8568,
-      "height_m": 1.855,
-      "width_m": 1.1131,
-      "depth_m": 0.4991,
-      "faces_inward_normal_frac": 0.156
+      "min_z": 0.0007,
+      "max_z": 1.8583,
+      "height_m": 1.8576,
+      "width_m": 1.0747,
+      "depth_m": 0.3721,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "vertex_count": 2698,
+      "faces_inward_normal_frac_INFO_ONLY": 0.265
     },
     "combo_thin_short": {
       "values": {
         "body_thin": 1.0,
         "height_short": 1.0
       },
-      "min_z": -0.0018,
-      "max_z": 1.6432,
+      "min_z": -0.0007,
+      "max_z": 1.6443,
       "height_m": 1.645,
-      "width_m": 1.1113,
-      "depth_m": 0.3591,
-      "faces_inward_normal_frac": 0.164
+      "width_m": 1.0745,
+      "depth_m": 0.3223,
+      "boundary_edges": 0,
+      "non_manifold_edges": 0,
+      "vertex_count": 2698,
+      "faces_inward_normal_frac_INFO_ONLY": 0.283
     }
   },
   "flags": [],
-  "baseline_inward_normal_frac": 0.16
+  "reference_vertex_count": 2698
 }

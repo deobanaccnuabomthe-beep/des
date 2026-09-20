@@ -200,6 +200,18 @@ def validate(path, required_morphs=None):
     check(results, "animation_durations_positive", all(d > 0 for d in durations.values()) and durations,
           ", ".join(f"{k}={v:.2f}s" for k, v in sorted(durations.items())) or "none")
 
+    # --- topology QA (welded from indices) ---
+    topo = analyze_topology(gltf, bin_chunk, prim, attrs)
+    if topo is not None:
+        check(results, "no_boundary_edges", topo["boundary_edges"] == 0,
+              f"{topo['boundary_edges']} boundary edge(s) (unintended open holes)")
+        check(results, "manifold_edges", topo["non_manifold_edges"] == 0,
+              f"{topo['non_manifold_edges']} non-manifold edge(s) (>2 faces)")
+        check(results, "no_loose_vertices", topo["loose_vertices"] == 0,
+              f"{topo['loose_vertices']} loose vertex/vertices")
+        check(results, "single_connected_component", topo["connected_components"] == 1,
+              f"{topo['connected_components']} connected component(s) (body should be 1 watertight shell)")
+
     # --- height morph keeps feet on the ground (Y-up, at value 1.0) ---
     ground = height_morph_ground_contact(gltf, bin_chunk, prim, target_names, attrs)
     for morph, min_y in ground.items():
@@ -235,6 +247,60 @@ def _rigid_inverse_translation(m):
     t = [m[12], m[13], m[14]]
     # inverse translation = -R^T t
     return tuple(-(r[0][i] * t[0] + r[1][i] * t[1] + r[2][i] * t[2]) for i in range(3))
+
+
+def analyze_topology(gltf, bin_chunk, prim, attrs):
+    """Topology QA from the GLB triangle indices. glTF splits vertices at normal/UV
+    seams, so positions are welded first (rounded key) — otherwise every hard edge
+    would read as a false boundary. Returns boundary/non-manifold edge counts, loose
+    vertex count, and connected-component count on the welded surface."""
+    if "POSITION" not in attrs or "indices" not in prim:
+        return None
+    positions = read_accessor(gltf, bin_chunk, attrs["POSITION"])
+    raw_idx = [i[0] for i in read_accessor(gltf, bin_chunk, prim["indices"])]
+
+    # weld by rounded position
+    weld = {}
+    remap = []
+    for pos in positions:
+        key = (round(pos[0], 5), round(pos[1], 5), round(pos[2], 5))
+        if key not in weld:
+            weld[key] = len(weld)
+        remap.append(weld[key])
+    nverts = len(weld)
+
+    edge_faces = {}
+    used = set()
+    tris = [raw_idx[i:i + 3] for i in range(0, len(raw_idx), 3)]
+    for a, b, c in tris:
+        wa, wb, wc = remap[a], remap[b], remap[c]
+        used.update((wa, wb, wc))
+        for u, v in ((wa, wb), (wb, wc), (wc, wa)):
+            e = (min(u, v), max(u, v))
+            edge_faces[e] = edge_faces.get(e, 0) + 1
+
+    boundary = sum(1 for n in edge_faces.values() if n == 1)
+    non_manifold = sum(1 for n in edge_faces.values() if n > 2)
+    loose = nverts - len(used)
+
+    # connected components via union-find over welded verts
+    parent = list(range(nverts))
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for (u, v) in edge_faces:
+        ru, rv = find(u), find(v)
+        if ru != rv:
+            parent[ru] = rv
+    components = len({find(i) for i in used}) if used else 0
+
+    return {"welded_vertices": nverts, "boundary_edges": boundary,
+            "non_manifold_edges": non_manifold, "loose_vertices": loose,
+            "connected_components": components}
 
 
 def animation_durations(gltf, bin_chunk):

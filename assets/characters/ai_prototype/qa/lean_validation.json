@@ -18,7 +18,7 @@
     {
       "check": "yup_axis",
       "ok": true,
-      "detail": "tallest axis is Y (max=[0.5541430115699768, 1.75, 0.14928260445594788]) -> Y-up",
+      "detail": "tallest axis is Y (max=[0.5385488271713257, 1.75, 0.10321658849716187]) -> Y-up",
       "required": true
     },
     {
@@ -54,13 +54,13 @@
     {
       "check": "vertex_count",
       "ok": true,
-      "detail": "533 vertices",
+      "detail": "2698 vertices",
       "required": false
     },
     {
       "check": "triangle_count",
       "ok": true,
-      "detail": "976 triangles",
+      "detail": "5392 triangles",
       "required": false
     },
     {
@@ -112,27 +112,51 @@
       "required": true
     },
     {
+      "check": "no_boundary_edges",
+      "ok": true,
+      "detail": "0 boundary edge(s) (unintended open holes)",
+      "required": true
+    },
+    {
+      "check": "manifold_edges",
+      "ok": true,
+      "detail": "0 non-manifold edge(s) (>2 faces)",
+      "required": true
+    },
+    {
+      "check": "no_loose_vertices",
+      "ok": true,
+      "detail": "0 loose vertex/vertices",
+      "required": true
+    },
+    {
+      "check": "single_connected_component",
+      "ok": true,
+      "detail": "1 connected component(s) (body should be 1 watertight shell)",
+      "required": true
+    },
+    {
       "check": "height_tall_feet_grounded",
       "ok": true,
-      "detail": "min_Y at height_tall=1.0 is +0.0018 (want ~0)",
+      "detail": "min_Y at height_tall=1.0 is +0.0007 (want ~0)",
       "required": true
     },
     {
       "check": "height_short_feet_grounded",
       "ok": true,
-      "detail": "min_Y at height_short=1.0 is -0.0018 (want ~0)",
+      "detail": "min_Y at height_short=1.0 is -0.0007 (want ~0)",
       "required": true
     },
     {
       "check": "shoulder_not_snapped",
       "ok": true,
-      "detail": "upper_arm.L is 0.193m off centerline (snapped bug would be ~0)",
+      "detail": "upper_arm.L is 0.187m off centerline (snapped bug would be ~0)",
       "required": true
     },
     {
       "check": "thigh_not_snapped",
       "ok": true,
-      "detail": "thigh.L is 0.086m off centerline (snapped bug would be ~0)",
+      "detail": "thigh.L is 0.094m off centerline (snapped bug would be ~0)",
       "required": true
     }
   ]

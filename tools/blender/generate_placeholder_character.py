@@ -15,7 +15,9 @@ Run headless:
         -- --output assets/characters/base_mesh_placeholder.glb
 """
 
+import json
 import math
+import os
 import sys
 from typing import Dict, List, Tuple
 
@@ -28,6 +30,9 @@ HEIGHT_M = 1.75
 
 # Joint positions in meters, Blender Z-up, origin at ground between the feet.
 # A-pose: arms angled ~45 degrees down from horizontal, per spec section 3.
+# Bone names follow spec section 5: a bone is named for the segment it drives and
+# its head sits at the proximal joint (upper_arm head = shoulder joint, forearm head
+# = elbow, shin head = knee, foot head = ankle). shoulder.L is the clavicle.
 JOINTS: Dict[str, Tuple[float, float, float]] = {
     "hips": (0.0, 0.0, 0.98),
     "spine": (0.0, 0.0, 1.10),
@@ -35,13 +40,13 @@ JOINTS: Dict[str, Tuple[float, float, float]] = {
     "neck": (0.0, 0.0, 1.50),
     "head": (0.0, 0.0, 1.62),
     "head_top": (0.0, 0.0, 1.735),
-    "shoulder.L": (0.17, 0.0, 1.46),
-    "upper_arm.L": (0.17, 0.0, 1.46),
-    "elbow.L": (0.37, 0.0, 1.26),
-    "hand.L": (0.50, 0.0, 1.00),
-    "thigh.L": (0.09, 0.0, 0.98),
-    "knee.L": (0.10, 0.0, 0.52),
-    "ankle.L": (0.10, 0.0, 0.10),
+    "shoulder.L": (0.06, 0.0, 1.46),   # clavicle root, near the sternum
+    "upper_arm.L": (0.17, 0.0, 1.46),  # shoulder joint
+    "forearm.L": (0.37, 0.0, 1.26),    # elbow
+    "hand.L": (0.50, 0.0, 1.00),       # wrist
+    "thigh.L": (0.09, 0.0, 0.98),      # hip joint
+    "shin.L": (0.10, 0.0, 0.52),       # knee
+    "foot.L": (0.10, 0.0, 0.10),       # ankle
     "toe.L": (0.10, 0.13, 0.02),
 }
 
@@ -70,13 +75,22 @@ EDGES: List[Tuple[str, str]] = [
     ("neck", "head"),
     ("head", "head_top"),
     ("chest", "shoulder.L"),
-    ("shoulder.L", "elbow.L"),
-    ("elbow.L", "hand.L"),
+    ("shoulder.L", "upper_arm.L"),
+    ("upper_arm.L", "forearm.L"),
+    ("forearm.L", "hand.L"),
     ("hips", "thigh.L"),
-    ("thigh.L", "knee.L"),
-    ("knee.L", "ankle.L"),
-    ("ankle.L", "toe.L"),
+    ("thigh.L", "shin.L"),
+    ("shin.L", "foot.L"),
+    ("foot.L", "toe.L"),
 ]
+
+# Branch edges (not part of a continuous limb chain): the child bone's head must
+# stay at its own joint, so these are parented WITHOUT use_connect. Connecting them
+# would snap shoulder/thigh heads onto the parent's tail — the v1 rig bug.
+BRANCH_EDGES = {
+    ("chest", "shoulder.L"), ("chest", "shoulder.R"),
+    ("hips", "thigh.L"), ("hips", "thigh.R"),
+}
 
 
 def all_edges() -> List[Tuple[str, str]]:
@@ -96,13 +110,13 @@ RADIUS: Dict[str, float] = {
     "neck": 0.055,
     "head": 0.115,
     "head_top": 0.03,
-    "shoulder.L": 0.07,
+    "shoulder.L": 0.06,
     "upper_arm.L": 0.07,
-    "elbow.L": 0.05,
+    "forearm.L": 0.05,
     "hand.L": 0.045,
     "thigh.L": 0.11,
-    "knee.L": 0.075,
-    "ankle.L": 0.055,
+    "shin.L": 0.075,
+    "foot.L": 0.055,
     "toe.L": 0.04,
 }
 
@@ -182,10 +196,6 @@ def build_shape_keys(obj, joints: Dict[str, Tuple[float, float, float]]):
     base_coords = [v.co.copy() for v in basis.data]
     joint_vecs = {name: Vector(pos) for name, pos in joints.items()}
 
-    def bone_pair(prefix_l: str):
-        return [(joint_vecs[prefix_l], joint_vecs[mirror_name(prefix_l)])] if prefix_l.endswith(".L") else \
-               [(joint_vecs[prefix_l], joint_vecs[prefix_l])]
-
     def radial_push(segments: List[Tuple[Vector, Vector]], radius: float, amount: float):
         """Push vertices outward from the given bone segments, falling off with distance."""
         offsets = [Vector((0, 0, 0)) for _ in base_coords]
@@ -227,14 +237,14 @@ def build_shape_keys(obj, joints: Dict[str, Tuple[float, float, float]]):
         return key
 
     torso_limbs = [
-        (joint_vecs["chest"], joint_vecs["shoulder.L"]),
-        (joint_vecs["chest"], joint_vecs["shoulder.R"]),
-        (joint_vecs["shoulder.L"], joint_vecs["elbow.L"]),
-        (joint_vecs["shoulder.R"], joint_vecs["elbow.R"]),
+        (joint_vecs["chest"], joint_vecs["upper_arm.L"]),
+        (joint_vecs["chest"], joint_vecs["upper_arm.R"]),
+        (joint_vecs["upper_arm.L"], joint_vecs["forearm.L"]),
+        (joint_vecs["upper_arm.R"], joint_vecs["forearm.R"]),
         (joint_vecs["hips"], joint_vecs["thigh.L"]),
         (joint_vecs["hips"], joint_vecs["thigh.R"]),
-        (joint_vecs["thigh.L"], joint_vecs["knee.L"]),
-        (joint_vecs["thigh.R"], joint_vecs["knee.R"]),
+        (joint_vecs["thigh.L"], joint_vecs["shin.L"]),
+        (joint_vecs["thigh.R"], joint_vecs["shin.R"]),
         (joint_vecs["hips"], joint_vecs["spine"]),
         (joint_vecs["spine"], joint_vecs["chest"]),
     ]
@@ -260,26 +270,26 @@ def build_shape_keys(obj, joints: Dict[str, Tuple[float, float, float]]):
     make_shape_key(
         "arm_mass",
         radial_push(
-            [(joint_vecs["shoulder.L"], joint_vecs["elbow.L"]), (joint_vecs["elbow.L"], joint_vecs["hand.L"]),
-             (joint_vecs["shoulder.R"], joint_vecs["elbow.R"]), (joint_vecs["elbow.R"], joint_vecs["hand.R"])],
+            [(joint_vecs["upper_arm.L"], joint_vecs["forearm.L"]), (joint_vecs["forearm.L"], joint_vecs["hand.L"]),
+             (joint_vecs["upper_arm.R"], joint_vecs["forearm.R"]), (joint_vecs["forearm.R"], joint_vecs["hand.R"])],
             radius=0.14, amount=0.045,
         ),
     )
     make_shape_key(
         "leg_mass",
         radial_push(
-            [(joint_vecs["thigh.L"], joint_vecs["knee.L"]), (joint_vecs["knee.L"], joint_vecs["ankle.L"]),
-             (joint_vecs["thigh.R"], joint_vecs["knee.R"]), (joint_vecs["knee.R"], joint_vecs["ankle.R"])],
+            [(joint_vecs["thigh.L"], joint_vecs["shin.L"]), (joint_vecs["shin.L"], joint_vecs["foot.L"]),
+             (joint_vecs["thigh.R"], joint_vecs["shin.R"]), (joint_vecs["shin.R"], joint_vecs["foot.R"])],
             radius=0.16, amount=0.045,
         ),
     )
     make_shape_key(
         "height_tall",
-        legwise_stretch(joint_vecs, base_coords, direction=1.0),
+        height_offset(base_coords, direction=1.0),
     )
     make_shape_key(
         "height_short",
-        legwise_stretch(joint_vecs, base_coords, direction=-1.0),
+        height_offset(base_coords, direction=-1.0),
     )
 
     head_z = joint_vecs["head"].z
@@ -294,17 +304,15 @@ def build_shape_keys(obj, joints: Dict[str, Tuple[float, float, float]]):
     make_shape_key("nose_narrow", axis_push((head_z - 0.03, head_z + 0.02), x_min_abs=0.0, axis=Vector((0, -1, 0)), amount=-0.012))
 
 
-def legwise_stretch(joint_vecs, base_coords, direction: float) -> List[Vector]:
-    hips_z = joint_vecs["hips"].z
-    offsets = [Vector((0, 0, 0)) for _ in base_coords]
-    for i, co in enumerate(base_coords):
-        if co.z < hips_z:
-            offsets[i] = Vector((0, 0, -0.05 * direction * (1.0 - co.z / hips_z)))
-        elif co.z >= hips_z:
-            span = 1.0
-            t = min(1.0, (co.z - hips_z) / span)
-            offsets[i] = Vector((0, 0, 0.05 * direction * t))
-    return offsets
+def height_offset(base_coords, direction: float, amount: float = 0.06) -> List[Vector]:
+    """Scale the whole body vertically about the ground plane (Z=0), so the feet
+    stay planted at all morph values while the body gets taller or shorter.
+
+    Each vertex moves in Z by (z * amount * direction): a vertex at z=0 (the feet)
+    never moves, so min-Z stays 0 for every value of the morph — fixing the v1 bug
+    where height_tall pushed feet below the ground. direction=+1 -> taller,
+    direction=-1 -> shorter."""
+    return [Vector((0.0, 0.0, co.z * amount * direction)) for co in base_coords]
 
 
 BONE_NAME_EXCLUDE = {"head_top"}
@@ -344,7 +352,10 @@ def build_armature(joints: Dict[str, Tuple[float, float, float]], edges: List[Tu
     for parent, child in bone_edges:
         if parent in created and child in created:
             created[child].parent = created[parent]
-            created[child].use_connect = True
+            # Only weld heads to the parent tail along continuous limb/spine chains.
+            # Branch joints (clavicle off chest, thigh off hips) keep their own head
+            # coordinate — connecting them would snap the head onto the parent's tail.
+            created[child].use_connect = (parent, child) not in BRANCH_EDGES
 
     bpy.ops.object.mode_set(mode="OBJECT")
     return arm_obj
@@ -414,6 +425,46 @@ def add_animations(arm_obj):
     bpy.ops.object.mode_set(mode="OBJECT")
 
 
+def mesh_bounds_z(mesh_obj) -> Tuple[float, float]:
+    """Min/max world Z of the actual skinned envelope (subsurf already applied, so
+    mesh vertices ARE the final surface — this is the skin radius the reviewer read
+    from the GLB, not just joint positions)."""
+    zs = [(mesh_obj.matrix_world @ v.co).z for v in mesh_obj.data.vertices]
+    return min(zs), max(zs)
+
+
+def normalize_to_height(mesh_obj, arm_obj, target_height: float = HEIGHT_M, target_min_z: float = 0.0):
+    """Uniformly scales the mesh + armature so the skinned envelope is exactly
+    target_height tall with its lowest point at target_min_z (the ground). Called
+    before skinning so auto-weights are computed on the final geometry. Applying the
+    object transform bakes it into the mesh (all shape keys) and the bone rest data,
+    keeping bind + morphs consistent. Returns a before/after bounds report."""
+    min_z, max_z = mesh_bounds_z(mesh_obj)
+    span = max_z - min_z
+    scale = target_height / span
+    z_off = target_min_z - min_z * scale
+
+    for obj in (mesh_obj, arm_obj):
+        obj.scale = (scale, scale, scale)
+        obj.location = (0.0, 0.0, z_off)
+
+    bpy.ops.object.select_all(action="DESELECT")
+    mesh_obj.select_set(True)
+    arm_obj.select_set(True)
+    bpy.context.view_layer.objects.active = mesh_obj
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    bpy.ops.object.select_all(action="DESELECT")
+
+    new_min, new_max = mesh_bounds_z(mesh_obj)
+    return {
+        "target_height_m": target_height,
+        "target_min_z": target_min_z,
+        "before": {"min_z": round(min_z, 4), "max_z": round(max_z, 4), "height_m": round(span, 4)},
+        "scale_applied": round(scale, 5),
+        "after": {"min_z": round(new_min, 4), "max_z": round(new_max, 4), "height_m": round(new_max - new_min, 4)},
+    }
+
+
 def finalize_transforms(mesh_obj, arm_obj):
     for obj in (mesh_obj, arm_obj):
         bpy.context.view_layer.objects.active = obj
@@ -457,12 +508,19 @@ def main():
     build_shape_keys(mesh_obj, joints)
 
     arm_obj = build_armature(joints, edges)
+    bounds_report = normalize_to_height(mesh_obj, arm_obj)
     skin_to_armature(mesh_obj, arm_obj)
     add_animations(arm_obj)
     finalize_transforms(mesh_obj, arm_obj)
 
     export_glb(output_path)
+
+    report_path = os.path.splitext(output_path)[0] + "_bounds_report.json"
+    with open(report_path, "w") as f:
+        json.dump(bounds_report, f, indent=2)
+
     print(f"Exported placeholder character to {output_path}")
+    print(f"Bounds normalization: {json.dumps(bounds_report)}")
 
 
 if __name__ == "__main__":

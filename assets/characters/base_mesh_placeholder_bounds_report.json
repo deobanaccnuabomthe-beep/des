@@ -1,0 +1,15 @@
+{
+  "target_height_m": 1.75,
+  "target_min_z": 0.0,
+  "before": {
+    "min_z": 0.0036,
+    "max_z": 1.7258,
+    "height_m": 1.7221
+  },
+  "scale_applied": 1.01618,
+  "after": {
+    "min_z": 0.0,
+    "max_z": 1.75,
+    "height_m": 1.75
+  }
+}

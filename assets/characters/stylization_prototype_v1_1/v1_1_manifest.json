@@ -1,0 +1,72 @@
+{
+  "stylize": {
+    "target_heads": 3.75,
+    "head_enlarge": 1.55,
+    "horizontal_keep": 0.88,
+    "girth_boost": 1.12
+  },
+  "characters": {
+    "A": {
+      "height_m": 1.6,
+      "shoulder_scale": 0.85,
+      "body_fat": 0.75,
+      "leg_length_scale": 0.85,
+      "face_width_scale": 1.25,
+      "eye_spacing_scale": 1.15,
+      "eye_height_scale": 1.0,
+      "eye_angle_deg": -6.0,
+      "eye_depth_scale": 1.0
+    },
+    "B": {
+      "height_m": 1.9,
+      "shoulder_scale": 1.15,
+      "body_fat": 0.15,
+      "leg_length_scale": 1.15,
+      "face_width_scale": 0.8,
+      "eye_spacing_scale": 0.9,
+      "eye_height_scale": 1.0,
+      "eye_angle_deg": 8.0,
+      "eye_depth_scale": 1.0
+    },
+    "C": {
+      "height_m": 1.75,
+      "shoulder_scale": 1.0,
+      "body_fat": 0.45,
+      "leg_length_scale": 1.0,
+      "face_width_scale": 1.05,
+      "eye_spacing_scale": 1.08,
+      "eye_height_scale": 1.0,
+      "eye_angle_deg": -3.0,
+      "eye_depth_scale": 1.0
+    },
+    "D": {
+      "height_m": 1.75,
+      "shoulder_scale": 1.0,
+      "body_fat": 0.45,
+      "leg_length_scale": 1.0,
+      "face_width_scale": 0.95,
+      "eye_spacing_scale": 0.94,
+      "eye_height_scale": 1.0,
+      "eye_angle_deg": 3.0,
+      "eye_depth_scale": 1.0
+    }
+  },
+  "hard_case_pair": [
+    "C",
+    "D"
+  ],
+  "hard_case_face_diff": {
+    "face_width_scale": [
+      1.05,
+      0.95
+    ],
+    "eye_spacing_scale": [
+      1.08,
+      0.94
+    ],
+    "eye_angle_deg": [
+      -3.0,
+      3.0
+    ]
+  }
+}

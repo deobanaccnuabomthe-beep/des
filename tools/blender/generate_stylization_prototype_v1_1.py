@@ -24,6 +24,7 @@ Run headless:
         --outdir assets/characters/stylization_prototype_v1_1
 """
 
+import json
 import math
 import os
 import sys
@@ -46,18 +47,37 @@ CHARACTERS = {
         "leg_length_scale": 1.15, "face_width_scale": 0.80,
         "eye_spacing_scale": 0.90, "eye_height_scale": 1.0, "eye_angle_deg": 8.0, "eye_depth_scale": 1.0,
     },
-    # New: the harder case — nearly identical body, small face/eye differences only.
+    # New: the harder case — IDENTICAL body, differing ONLY in face/eye params, so the
+    # test isolates the facial variable (v1.1 review B2: body_fat differed before).
     "C": {
         "height_m": 1.75, "shoulder_scale": 1.0, "body_fat": 0.45,
         "leg_length_scale": 1.0, "face_width_scale": 1.05,
         "eye_spacing_scale": 1.08, "eye_height_scale": 1.0, "eye_angle_deg": -3.0, "eye_depth_scale": 1.0,
     },
     "D": {
-        "height_m": 1.75, "shoulder_scale": 1.0, "body_fat": 0.50,
+        "height_m": 1.75, "shoulder_scale": 1.0, "body_fat": 0.45,
         "leg_length_scale": 1.0, "face_width_scale": 0.95,
         "eye_spacing_scale": 0.94, "eye_height_scale": 1.0, "eye_angle_deg": 3.0, "eye_depth_scale": 1.0,
     },
 }
+
+# The C/D hard case must isolate the face: their body params have to match exactly.
+BODY_PARAMS = ("height_m", "shoulder_scale", "body_fat", "leg_length_scale")
+FACE_PARAMS = ("face_width_scale", "eye_spacing_scale", "eye_height_scale", "eye_angle_deg", "eye_depth_scale")
+
+
+def assert_face_only_pair(a_name, b_name, chars):
+    """Fail loudly if the 'face-only' pair differs in any body parameter — a silent
+    body-param drift is exactly what made v1's C/D test not actually face-isolated."""
+    a, b = chars[a_name], chars[b_name]
+    mismatched = [p for p in BODY_PARAMS if a[p] != b[p]]
+    if mismatched:
+        raise AssertionError(
+            f"{a_name}/{b_name} must share all body params to isolate the face, "
+            f"but differ in: {mismatched}"
+        )
+    face_diff = {p: (a[p], b[p]) for p in FACE_PARAMS if a[p] != b[p]}
+    return face_diff
 
 STYLIZE = {
     "target_heads": 3.75,
@@ -291,8 +311,19 @@ def frame_and_render(cam_obj, target, objs, view, path, margin=1.25):
     bpy.ops.render.render(write_still=True)
 
 
+_PILLOW_WARNED = False
+
+
 def label_image(path, lines):
-    from PIL import Image, ImageDraw, ImageFont
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        global _PILLOW_WARNED
+        if not _PILLOW_WARNED:
+            print("WARNING: Pillow not installed — rendering images WITHOUT labels. "
+                  "Install pillow to burn in per-image parameter captions.")
+            _PILLOW_WARNED = True
+        return  # image is already saved by the renderer, just unlabeled
     img = Image.open(path).convert("RGB")
     band_h = 26 * (len(lines) + 1)
     canvas = Image.new("RGB", (img.width, img.height + band_h), (20, 20, 22))
@@ -336,6 +367,19 @@ def main():
     clear_scene()
     edges = all_edges()
 
+    # Guard: the C/D hard case must isolate the face — fail before rendering if not.
+    face_diff = assert_face_only_pair("C", "D", CHARACTERS)
+    print(f"C/D face-only diff (body params identical): {face_diff}")
+
+    manifest = {
+        "stylize": STYLIZE,
+        "characters": CHARACTERS,
+        "hard_case_pair": ["C", "D"],
+        "hard_case_face_diff": face_diff,
+    }
+    with open(os.path.join(outdir, "v1_1_manifest.json"), "w") as f:
+        json.dump(manifest, f, indent=2)
+
     eye_mat = bpy.data.materials.new("eye_marker")
     eye_mat.use_nodes = True
     eye_mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.05, 0.05, 0.08, 1.0)
@@ -369,7 +413,12 @@ def main():
             for view in ("front", "profile"):
                 path = os.path.join(outdir, f"{char_name}_{variant}_{view}.png")
                 frame_and_render(cam_obj, target, related, view, path)
-                label_image(path, param_summary(f"{char_name} ({variant}, {view})", CHARACTERS[char_name]))
+                lines = param_summary(f"{char_name} ({variant}, {view})", CHARACTERS[char_name])
+                # Profile eye markers detach from the head silhouette (spec-noted proxy
+                # limit) — mark these DEBUG so they are never read as facial validation.
+                if view == "profile":
+                    lines.append("DEBUG LANDMARKS - NOT FACIAL VALIDATION")
+                label_image(path, lines)
 
     # The key comparison: C vs D, stylized only, front — the near-identical hard case.
     for o in bpy.data.objects:

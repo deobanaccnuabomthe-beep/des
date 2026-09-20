@@ -28,5 +28,19 @@ blender --background --python tools/blender/render_preview.py -- \
     --outdir /tmp/character_previews
 ```
 
+`tools/blender/validate_glb.py` is a pure-Python (no Blender) post-export QA gate — it
+reloads the GLB and checks bounds (1.75 m, feet at ground, Y-up), skin attributes,
+weight sums, max-4 influences, the 18 morph names, the 20 spec bone names, the 3
+animation clips, and bind-pose joint positions (to catch a snapped rig). Exit code is
+non-zero on any required failure, so it can gate CI:
+
+```
+python3 tools/blender/validate_glb.py assets/characters/base_mesh_placeholder.glb
+```
+
+The generator writes `base_mesh_placeholder_bounds_report.json` alongside the GLB with
+the before/after normalization bounds. The rig uses the spec section 5 bone chain
+(`shoulder → upper_arm → forearm → hand`, `thigh → shin → foot → toe`).
+
 Once the artist hands off the real `base_mesh.glb`, drop it in this folder and update
 the `require(...)` path in `App.tsx`.

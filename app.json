@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "LIFE RPG",
+    "slug": "life-rpg",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "assetBundlePatterns": ["assets/**/*"],
+    "ios": { "supportsTablet": false },
+    "android": {},
+    "plugins": ["expo-gl"]
+  }
+}

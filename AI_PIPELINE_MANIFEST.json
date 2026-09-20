@@ -1,0 +1,93 @@
+{
+  "labels": ["PROTOTYPE", "AI_GENERATED", "NOT_PRODUCTION_APPROVED"],
+  "generated": "2026-09-20",
+  "source_method": "local parametric cross-section (lofted-ring) human generator",
+  "why_local": "No external AI mesh service reachable (Tripo/Meshy HTTP 000, no API keys) and no MPFB/MB-Lab addon installed in this environment; pipeline rule 4 fallback. See docs/PLUGIN_STATUS.md.",
+  "tooling": {
+    "generator": {
+      "name": "tools/blender/ai_character_pipeline.py",
+      "engine": "Blender bpy",
+      "blender_version": "4.0.2",
+      "license": "own script (no third-party asset); Blender is GPL",
+      "external_service": "none",
+      "api_key_used": false
+    },
+    "exporter": {
+      "name": "Blender glTF 2.0 exporter (io_scene_gltf2)",
+      "bundled_with": "Blender 4.0.2",
+      "export_format": "GLB (binary glTF 2.0)",
+      "options": {"export_yup": true, "export_morph": true, "export_skins": true, "export_animations": true, "use_selection": true},
+      "license": "GPL / bundled"
+    },
+    "rigging": {
+      "chosen": "hand-built corrected-equivalent hierarchy (pipeline rule 7)",
+      "rigify_available": true,
+      "rigify_used": false,
+      "rigify_reason": "Rigify bone naming does not match the required spec convention; see docs/PLUGIN_STATUS.md"
+    },
+    "validator": {"name": "tools/blender/validate_glb.py", "engine": "pure Python (no Blender)"},
+    "qa_renderer": {"name": "tools/blender/render_character_qa.py", "engine": "Blender bpy + Pillow"}
+  },
+  "topology": {
+    "consistent_across_variants": true,
+    "ring_segments": 16,
+    "vertices": 533,
+    "triangles": 976,
+    "note": "same vertex order + faces for lean/average/fat and every shape key, so morphs are real topology-preserving vertex deltas"
+  },
+  "input_parameters": {
+    "variants": {
+      "lean":    {"thin": 0.85, "muscle": 0.30, "fat": 0.0},
+      "average": {"fat": 0.35, "muscle": 0.30},
+      "fat":     {"fat": 0.95, "muscle": 0.15}
+    },
+    "parameter_meaning": "per-region girth response; fat inflates belly/waist/hips/chest/face, muscle widens shoulders/chest/arms, thin slims all"
+  },
+  "output_dimensions": {
+    "height_m": 1.75,
+    "min_z": 0.0,
+    "origin": "between the feet at ground",
+    "source_axis": "Blender Z-up",
+    "export_axis": "glTF Y-up"
+  },
+  "morphs": {
+    "count": 10,
+    "names": ["body_muscle", "body_fat", "body_thin", "shoulder_wide", "waist_narrow",
+              "chest_thick", "arm_mass", "leg_mass", "height_tall", "height_short"],
+    "face_morphs": "OUT OF SCOPE for v2 (no facial identity work); a later V3 face adapter would add them"
+  },
+  "bones": {
+    "count": 21,
+    "names": ["hips", "spine", "chest", "neck", "head",
+              "shoulder.L", "shoulder.R", "upper_arm.L", "upper_arm.R",
+              "forearm.L", "forearm.R", "hand.L", "hand.R",
+              "thigh.L", "thigh.R", "shin.L", "shin.R",
+              "foot.L", "foot.R", "toe.L", "toe.R"],
+    "branch_bones_unconnected": ["chest->shoulder.L/R", "hips->thigh.L/R"]
+  },
+  "animations": {"clips": ["idle", "celebrate", "showcase"], "durations_s": {"idle": 3.5, "celebrate": 2.0, "showcase": 4.0}},
+  "outputs": {
+    "lean": "assets/characters/ai_prototype/lean.glb",
+    "average": "assets/characters/ai_prototype/average.glb",
+    "fat": "assets/characters/ai_prototype/fat.glb",
+    "qa": "assets/characters/ai_prototype/qa/ (per-variant validation.json, qa_report.json, contact_sheet.png, morph sweeps, combos)"
+  },
+  "validator_result": {
+    "lean": "PASS (0 required failures; UV absent = WARN)",
+    "average": "PASS (0 required failures; UV absent = WARN)",
+    "fat": "PASS (0 required failures; UV absent = WARN)",
+    "checks": ["bounds 1.75m", "feet on ground", "Y-up", "root transform identity",
+               "skin JOINTS_0/WEIGHTS_0", "weight sum ~1", "max 4 influences",
+               "no zero-weight verts", "10 morph names + count", "21 spec bones ARE skin members",
+               "parent-child hierarchy", "3 anim clips + durations", "bind-pose joint positions",
+               "height morph feet grounded"]
+  },
+  "known_limitations": [
+    "Cross-section tube topology, NOT a sculpted production base mesh — no clean facial edge flow, no hands/feet detail, tube seams where limbs meet the torso overlap (expected self-intersection at joints).",
+    "No UV / no texture (validator reports UV absence as a WARN, not a failure).",
+    "shoulder_wide at value 1.0 produces a slightly spiky deltoid (low ring count).",
+    "Face is out of scope: head shape + approximate face width only; NO facial identity claim. Eye landmarks are a separate proxy experiment (docs/stylization-prototype-v1.1.md).",
+    "Auto (envelope) skin weights, not hand-painted; adequate for prototype deformation, not production.",
+    "NOT PRODUCTION APPROVED. Suitable for pipeline validation and body-proportion prototyping only."
+  ]
+}

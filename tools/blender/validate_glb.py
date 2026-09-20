@@ -18,13 +18,19 @@ import json
 import struct
 import sys
 
-# Required morph target names, spec sections 4 + 4b (order-independent).
-REQUIRED_MORPHS = {
+# Required morph target names. Two profiles: "body" = the 10 body morphs
+# (spec section 4 + AI pipeline v2 step 5), "full" = body + the 8 face morphs
+# (spec 4b). Selected with --profile; default "full" (the placeholder ships face
+# morphs, the AI body prototype does not — face is out of scope for v2).
+BODY_MORPHS = {
     "body_muscle", "body_fat", "body_thin", "shoulder_wide", "waist_narrow",
     "chest_thick", "arm_mass", "leg_mass", "height_tall", "height_short",
+}
+FACE_MORPHS = {
     "face_wide", "face_narrow", "jaw_square", "jaw_round", "eyes_wide_set",
     "eyes_close_set", "nose_wide", "nose_narrow",
 }
+MORPH_PROFILES = {"body": BODY_MORPHS, "full": BODY_MORPHS | FACE_MORPHS}
 REQUIRED_JOINTS = {
     "hips", "spine", "chest", "neck", "head",
     "shoulder.L", "upper_arm.L", "forearm.L", "hand.L",
@@ -82,7 +88,9 @@ def check(results, name, ok, detail, required=True):
     results.append({"check": name, "ok": bool(ok), "detail": detail, "required": required})
 
 
-def validate(path):
+def validate(path, required_morphs=None):
+    if required_morphs is None:
+        required_morphs = MORPH_PROFILES["full"]
     gltf, bin_chunk = load_glb(path)
     results = []
 
@@ -125,23 +133,78 @@ def validate(path):
     check(results, "material_count_<=2", 0 < mat_count <= 2,
           f"{mat_count} material(s) (spec max 2 for base mesh)", required=False)
 
-    # --- morph targets ---
-    target_names = set(mesh.get("extras", {}).get("targetNames", []))
-    missing_morphs = REQUIRED_MORPHS - target_names
+    # --- geometry counts ---
+    vert_count = pos_acc["count"]
+    if "indices" in prim:
+        tri_count = gltf["accessors"][prim["indices"]]["count"] // 3
+    else:
+        tri_count = vert_count // 3
+    check(results, "vertex_count", vert_count > 0, f"{vert_count} vertices", required=False)
+    check(results, "triangle_count", tri_count > 0, f"{tri_count} triangles", required=False)
+
+    # --- root transform (we bake normalization, so skinned-mesh nodes must be identity) ---
+    bad_roots = []
+    for node in gltf.get("nodes", []):
+        if "mesh" in node:
+            if node.get("scale", [1, 1, 1]) != [1, 1, 1] or \
+               any(abs(t) > 1e-4 for t in node.get("translation", [0, 0, 0])):
+                bad_roots.append(node.get("name"))
+    check(results, "root_transform_identity", not bad_roots,
+          f"non-identity mesh nodes: {bad_roots}" if bad_roots else "mesh node transforms are identity")
+
+    # --- morph targets: names + count ---
+    target_names = mesh.get("extras", {}).get("targetNames", [])
+    target_set = set(target_names)
+    missing_morphs = required_morphs - target_set
     check(results, "morph_names_exact", not missing_morphs,
-          f"missing={sorted(missing_morphs)}" if missing_morphs else f"all 18 present ({len(target_names)} total)")
+          f"missing={sorted(missing_morphs)}" if missing_morphs
+          else f"all {len(required_morphs)} required present ({len(target_names)} total)")
+    check(results, "morph_count", len(prim.get("targets", [])) == len(target_names) >= len(required_morphs),
+          f"{len(prim.get('targets', []))} morph accessors / {len(target_names)} names / need >= {len(required_morphs)}")
 
-    # --- joints / bone names ---
-    node_names = {n.get("name") for n in gltf.get("nodes", [])}
-    missing_joints = REQUIRED_JOINTS - node_names
-    check(results, "joint_names_spec", not missing_joints,
-          f"missing={sorted(missing_joints)}" if missing_joints else "all spec bones present")
+    # --- joints: must be actual MEMBERS of the exported skin, not just scene nodes ---
+    nodes = gltf.get("nodes", [])
+    skin_joint_names = set()
+    if gltf.get("skins"):
+        skin_joint_names = {nodes[i].get("name") for i in gltf["skins"][0].get("joints", [])}
+    missing_skin_joints = REQUIRED_JOINTS - skin_joint_names
+    check(results, "joints_in_skin", not missing_skin_joints,
+          f"missing from skin.joints: {sorted(missing_skin_joints)}" if missing_skin_joints
+          else f"all {len(REQUIRED_JOINTS)} spec bones are skin members")
 
-    # --- animations ---
+    # --- parent/child hierarchy sanity for key chains ---
+    name_to_idx = {n.get("name"): i for i, n in enumerate(nodes)}
+    children_of = {i: set(n.get("children", [])) for i, n in enumerate(nodes)}
+    required_links = [("chest", "shoulder.L"), ("shoulder.L", "upper_arm.L"),
+                      ("upper_arm.L", "forearm.L"), ("forearm.L", "hand.L"),
+                      ("hips", "thigh.L"), ("thigh.L", "shin.L"), ("shin.L", "foot.L"),
+                      ("spine", "chest"), ("neck", "head")]
+    broken_links = [f"{a}->{b}" for a, b in required_links
+                    if a in name_to_idx and b in name_to_idx
+                    and name_to_idx[b] not in children_of.get(name_to_idx[a], set())]
+    check(results, "bone_hierarchy", not broken_links,
+          f"broken parent->child: {broken_links}" if broken_links else "spec parent->child links intact")
+
+    # --- zero-weight vertices ---
+    if has_weights:
+        zero_w = sum(1 for w in weights if sum(w) < 1e-6)
+        check(results, "no_zero_weight_verts", zero_w == 0,
+              f"{zero_w} vertices have all-zero weights", required=False)
+
+    # --- animations: names + duration ---
     anim_names = {a.get("name") for a in gltf.get("animations", [])}
     missing_anims = REQUIRED_ANIMATIONS - anim_names
     check(results, "animation_clips", not missing_anims,
           f"missing={sorted(missing_anims)}" if missing_anims else f"{sorted(anim_names)}")
+    durations = animation_durations(gltf, bin_chunk)
+    check(results, "animation_durations_positive", all(d > 0 for d in durations.values()) and durations,
+          ", ".join(f"{k}={v:.2f}s" for k, v in sorted(durations.items())) or "none")
+
+    # --- height morph keeps feet on the ground (Y-up, at value 1.0) ---
+    ground = height_morph_ground_contact(gltf, bin_chunk, prim, target_names, attrs)
+    for morph, min_y in ground.items():
+        check(results, f"{morph}_feet_grounded", abs(min_y) <= 0.02,
+              f"min_Y at {morph}=1.0 is {min_y:+.4f} (want ~0)")
 
     # --- rig sanity: bind-pose joint world positions (catches the use_connect snap
     #     bug — a snapped shoulder/thigh head would sit on the body centerline). ---
@@ -174,6 +237,42 @@ def _rigid_inverse_translation(m):
     return tuple(-(r[0][i] * t[0] + r[1][i] * t[1] + r[2][i] * t[2]) for i in range(3))
 
 
+def animation_durations(gltf, bin_chunk):
+    """Max keyframe time (seconds) per animation, read from sampler input accessors."""
+    out = {}
+    for anim in gltf.get("animations", []):
+        tmax = 0.0
+        for sampler in anim.get("samplers", []):
+            acc = gltf["accessors"][sampler["input"]]
+            if "max" in acc:
+                tmax = max(tmax, acc["max"][0])
+            else:
+                times = read_accessor(gltf, bin_chunk, sampler["input"])
+                tmax = max([tmax] + [t[0] for t in times])
+        out[anim.get("name", "?")] = tmax
+    return out
+
+
+def height_morph_ground_contact(gltf, bin_chunk, prim, target_names, attrs):
+    """min world Y with a height morph fully applied (value 1.0) = basis POSITION +
+    that morph's POSITION delta. Confirms feet stay on the ground under height morphs."""
+    out = {}
+    if "POSITION" not in attrs or not prim.get("targets"):
+        return out
+    basis = read_accessor(gltf, bin_chunk, attrs["POSITION"])
+    for morph in ("height_tall", "height_short"):
+        if morph not in target_names:
+            continue
+        ti = target_names.index(morph)
+        target = prim["targets"][ti]
+        if "POSITION" not in target:
+            continue
+        delta = read_accessor(gltf, bin_chunk, target["POSITION"])
+        min_y = min(basis[i][1] + delta[i][1] for i in range(len(basis)))
+        out[morph] = min_y
+    return out
+
+
 def bind_pose_joint_positions(gltf, bin_chunk):
     if not gltf.get("skins"):
         return {}
@@ -190,8 +289,14 @@ def bind_pose_joint_positions(gltf, bin_chunk):
 
 
 def main():
-    path = sys.argv[1] if len(sys.argv) > 1 else "assets/characters/base_mesh_placeholder.glb"
-    results = validate(path)
+    argv = sys.argv[1:]
+    flag_vals = {"--json", "--profile"}
+    positional = [a for i, a in enumerate(argv)
+                  if not a.startswith("--") and (i == 0 or argv[i - 1] not in flag_vals)]
+    path = positional[0] if positional else "assets/characters/base_mesh_placeholder.glb"
+    json_out = argv[argv.index("--json") + 1] if "--json" in argv else None
+    profile = argv[argv.index("--profile") + 1] if "--profile" in argv else "full"
+    results = validate(path, MORPH_PROFILES.get(profile, MORPH_PROFILES["full"]))
 
     print(f"GLB validation: {path}\n")
     required_failed = 0
@@ -209,6 +314,17 @@ def main():
         print(f"\n  bind-pose joint world positions (x, y=up, z):")
         for name, pos in r["detail"].items():
             print(f"    {name:14s} {pos}")
+
+    if json_out:
+        summary = {
+            "glb": path,
+            "required_failed": required_failed,
+            "passed": required_failed == 0,
+            "checks": [{k: r[k] for k in ("check", "ok", "detail", "required")}
+                       for r in results if not r.get("info")],
+        }
+        with open(json_out, "w") as f:
+            json.dump(summary, f, indent=2)
 
     print()
     if required_failed:

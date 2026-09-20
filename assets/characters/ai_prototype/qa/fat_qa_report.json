@@ -1,0 +1,549 @@
+{
+  "label": [
+    "PROTOTYPE",
+    "AI_GENERATED",
+    "NOT_PRODUCTION_APPROVED"
+  ],
+  "variant": "fat",
+  "input": "assets/characters/ai_prototype/fat.glb",
+  "heuristic_note": "faces_inward_normal_frac, self_intersection and silhouette are coarse triage heuristics on a low-poly prototype, not guarantees",
+  "neutral": {
+    "front": {
+      "min_z": 0.0,
+      "max_z": 1.75,
+      "height_m": 1.75,
+      "width_m": 1.1113,
+      "depth_m": 0.4054,
+      "faces_inward_normal_frac": 0.16
+    },
+    "side": {
+      "min_z": 0.0,
+      "max_z": 1.75,
+      "height_m": 1.75,
+      "width_m": 1.1113,
+      "depth_m": 0.4054,
+      "faces_inward_normal_frac": 0.16
+    },
+    "three_quarter": {
+      "min_z": 0.0,
+      "max_z": 1.75,
+      "height_m": 1.75,
+      "width_m": 1.1113,
+      "depth_m": 0.4054,
+      "faces_inward_normal_frac": 0.16
+    }
+  },
+  "morph_sweeps": {
+    "body_muscle": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4166,
+        "faces_inward_normal_frac": 0.16
+      }
+    ],
+    "body_fat": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1118,
+        "depth_m": 0.4288,
+        "faces_inward_normal_frac": 0.156
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1122,
+        "depth_m": 0.4523,
+        "faces_inward_normal_frac": 0.156
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1126,
+        "depth_m": 0.4757,
+        "faces_inward_normal_frac": 0.156
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1131,
+        "depth_m": 0.4991,
+        "faces_inward_normal_frac": 0.156
+      }
+    ],
+    "body_thin": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.3879,
+        "faces_inward_normal_frac": 0.164
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.3703,
+        "faces_inward_normal_frac": 0.164
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.3591,
+        "faces_inward_normal_frac": 0.164
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.3591,
+        "faces_inward_normal_frac": 0.164
+      }
+    ],
+    "shoulder_wide": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      }
+    ],
+    "waist_narrow": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      }
+    ],
+    "chest_thick": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4139,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4413,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4687,
+        "faces_inward_normal_frac": 0.16
+      }
+    ],
+    "arm_mass": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.156
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.152
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.152
+      }
+    ],
+    "leg_mass": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.156
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.152
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.148
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.143
+      }
+    ],
+    "height_tall": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": 0.0005,
+        "max_z": 1.7767,
+        "height_m": 1.7762,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.5,
+        "min_z": 0.0009,
+        "max_z": 1.8034,
+        "height_m": 1.8025,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.75,
+        "min_z": 0.0014,
+        "max_z": 1.8301,
+        "height_m": 1.8288,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 1.0,
+        "min_z": 0.0018,
+        "max_z": 1.8568,
+        "height_m": 1.855,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      }
+    ],
+    "height_short": [
+      {
+        "value": 0.0,
+        "min_z": 0.0,
+        "max_z": 1.75,
+        "height_m": 1.75,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.25,
+        "min_z": -0.0005,
+        "max_z": 1.7233,
+        "height_m": 1.7238,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.5,
+        "min_z": -0.0009,
+        "max_z": 1.6966,
+        "height_m": 1.6975,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 0.75,
+        "min_z": -0.0014,
+        "max_z": 1.6699,
+        "height_m": 1.6713,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      },
+      {
+        "value": 1.0,
+        "min_z": -0.0018,
+        "max_z": 1.6432,
+        "height_m": 1.645,
+        "width_m": 1.1113,
+        "depth_m": 0.4054,
+        "faces_inward_normal_frac": 0.16
+      }
+    ]
+  },
+  "combos": {
+    "combo_muscle_fat_shoulder": {
+      "values": {
+        "body_muscle": 0.8,
+        "body_fat": 0.6,
+        "shoulder_wide": 1.0
+      },
+      "min_z": 0.0,
+      "max_z": 1.75,
+      "height_m": 1.75,
+      "width_m": 1.1124,
+      "depth_m": 0.4616,
+      "faces_inward_normal_frac": 0.156
+    },
+    "combo_fat_tall": {
+      "values": {
+        "body_fat": 1.0,
+        "height_tall": 1.0
+      },
+      "min_z": 0.0018,
+      "max_z": 1.8568,
+      "height_m": 1.855,
+      "width_m": 1.1131,
+      "depth_m": 0.4991,
+      "faces_inward_normal_frac": 0.156
+    },
+    "combo_thin_short": {
+      "values": {
+        "body_thin": 1.0,
+        "height_short": 1.0
+      },
+      "min_z": -0.0018,
+      "max_z": 1.6432,
+      "height_m": 1.645,
+      "width_m": 1.1113,
+      "depth_m": 0.3591,
+      "faces_inward_normal_frac": 0.164
+    }
+  },
+  "flags": [],
+  "baseline_inward_normal_frac": 0.16
+}

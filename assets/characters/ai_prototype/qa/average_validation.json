@@ -1,0 +1,139 @@
+{
+  "glb": "assets/characters/ai_prototype/average.glb",
+  "required_failed": 0,
+  "passed": true,
+  "checks": [
+    {
+      "check": "height_1.75m",
+      "ok": true,
+      "detail": "height=1.7500m (want 1.75+/-0.02)",
+      "required": true
+    },
+    {
+      "check": "feet_on_ground",
+      "ok": true,
+      "detail": "min_Y=0.0000 (want ~0, no ground penetration)",
+      "required": true
+    },
+    {
+      "check": "yup_axis",
+      "ok": true,
+      "detail": "tallest axis is Y (max=[0.5547017455101013, 1.75, 0.16270434856414795]) -> Y-up",
+      "required": true
+    },
+    {
+      "check": "skin_attributes",
+      "ok": true,
+      "detail": "JOINTS_0=True WEIGHTS_0=True",
+      "required": true
+    },
+    {
+      "check": "weight_sum_~1",
+      "ok": true,
+      "detail": "weight sum range [1.0000, 1.0000]",
+      "required": true
+    },
+    {
+      "check": "max_4_influences",
+      "ok": true,
+      "detail": "WEIGHTS_0 is VEC4 (mobile three.js limit = 4)",
+      "required": true
+    },
+    {
+      "check": "has_uv",
+      "ok": false,
+      "detail": "TEXCOORD_0 present=False",
+      "required": false
+    },
+    {
+      "check": "material_count_<=2",
+      "ok": true,
+      "detail": "1 material(s) (spec max 2 for base mesh)",
+      "required": false
+    },
+    {
+      "check": "vertex_count",
+      "ok": true,
+      "detail": "533 vertices",
+      "required": false
+    },
+    {
+      "check": "triangle_count",
+      "ok": true,
+      "detail": "976 triangles",
+      "required": false
+    },
+    {
+      "check": "root_transform_identity",
+      "ok": true,
+      "detail": "mesh node transforms are identity",
+      "required": true
+    },
+    {
+      "check": "morph_names_exact",
+      "ok": true,
+      "detail": "all 10 required present (10 total)",
+      "required": true
+    },
+    {
+      "check": "morph_count",
+      "ok": true,
+      "detail": "10 morph accessors / 10 names / need >= 10",
+      "required": true
+    },
+    {
+      "check": "joints_in_skin",
+      "ok": true,
+      "detail": "all 21 spec bones are skin members",
+      "required": true
+    },
+    {
+      "check": "bone_hierarchy",
+      "ok": true,
+      "detail": "spec parent->child links intact",
+      "required": true
+    },
+    {
+      "check": "no_zero_weight_verts",
+      "ok": true,
+      "detail": "0 vertices have all-zero weights",
+      "required": false
+    },
+    {
+      "check": "animation_clips",
+      "ok": true,
+      "detail": "['celebrate', 'idle', 'showcase']",
+      "required": true
+    },
+    {
+      "check": "animation_durations_positive",
+      "ok": true,
+      "detail": "celebrate=2.00s, idle=3.50s, showcase=4.00s",
+      "required": true
+    },
+    {
+      "check": "height_tall_feet_grounded",
+      "ok": true,
+      "detail": "min_Y at height_tall=1.0 is +0.0018 (want ~0)",
+      "required": true
+    },
+    {
+      "check": "height_short_feet_grounded",
+      "ok": true,
+      "detail": "min_Y at height_short=1.0 is -0.0018 (want ~0)",
+      "required": true
+    },
+    {
+      "check": "shoulder_not_snapped",
+      "ok": true,
+      "detail": "upper_arm.L is 0.193m off centerline (snapped bug would be ~0)",
+      "required": true
+    },
+    {
+      "check": "thigh_not_snapped",
+      "ok": true,
+      "detail": "thigh.L is 0.086m off centerline (snapped bug would be ~0)",
+      "required": true
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "label": [
+    "PROTOTYPE",
+    "AI_GENERATED",
+    "NOT_PRODUCTION_APPROVED"
+  ],
+  "source_method": "local parametric cross-section generator (Blender bpy)",
+  "ring_segments": 16,
+  "morphs": [
+    "body_muscle",
+    "body_fat",
+    "body_thin",
+    "shoulder_wide",
+    "waist_narrow",
+    "chest_thick",
+    "arm_mass",
+    "leg_mass",
+    "height_tall",
+    "height_short"
+  ],
+  "variants": {
+    "lean": {
+      "variant": "lean",
+      "params": {
+        "fat": 0.0,
+        "muscle": 0.3,
+        "thin": 0.85,
+        "shoulder_wide": 0.0,
+        "waist_narrow": 0.0,
+        "chest_thick": 0.0,
+        "arm_mass": 0.0,
+        "leg_mass": 0.0
+      },
+      "bounds": {
+        "before": {
+          "min_z": 0.03,
+          "max_z": 1.755
+        },
+        "scale": 1.01449,
+        "after": {
+          "min_z": 0.0,
+          "max_z": 1.75,
+          "height_m": 1.75
+        }
+      },
+      "triangles": 976,
+      "vertices": 533,
+      "glb": "assets/characters/ai_prototype/lean.glb"
+    },
+    "average": {
+      "variant": "average",
+      "params": {
+        "fat": 0.35,
+        "muscle": 0.3,
+        "thin": 0.0,
+        "shoulder_wide": 0.0,
+        "waist_narrow": 0.0,
+        "chest_thick": 0.0,
+        "arm_mass": 0.0,
+        "leg_mass": 0.0
+      },
+      "bounds": {
+        "before": {
+          "min_z": 0.03,
+          "max_z": 1.755
+        },
+        "scale": 1.01449,
+        "after": {
+          "min_z": 0.0,
+          "max_z": 1.75,
+          "height_m": 1.75
+        }
+      },
+      "triangles": 976,
+      "vertices": 533,
+      "glb": "assets/characters/ai_prototype/average.glb"
+    },
+    "fat": {
+      "variant": "fat",
+      "params": {
+        "fat": 0.95,
+        "muscle": 0.15,
+        "thin": 0.0,
+        "shoulder_wide": 0.0,
+        "waist_narrow": 0.0,
+        "chest_thick": 0.0,
+        "arm_mass": 0.0,
+        "leg_mass": 0.0
+      },
+      "bounds": {
+        "before": {
+          "min_z": 0.03,
+          "max_z": 1.755
+        },
+        "scale": 1.01449,
+        "after": {
+          "min_z": 0.0,
+          "max_z": 1.75,
+          "height_m": 1.75
+        }
+      },
+      "triangles": 976,
+      "vertices": 533,
+      "glb": "assets/characters/ai_prototype/fat.glb"
+    }
+  }
+}

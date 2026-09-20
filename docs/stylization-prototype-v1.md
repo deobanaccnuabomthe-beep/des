@@ -1,10 +1,15 @@
-# Stylization Prototype v1 — kiểm tra identity preservation
+# Stylization Prototype v1 — technical feasibility test (không phải bằng chứng identity)
 
-Thử nghiệm này trả lời một câu hỏi kỹ thuật cụ thể, tách biệt khỏi việc làm nghệ thuật cuối
-cùng: **nếu ta nén tỉ lệ nhân vật xuống phong cách "soft chibi anime" (~3.5–4 đầu), hai người
-có silhouette/khuôn mặt khác nhau có còn đọc được là hai người khác nhau không?** Nếu không,
-toàn bộ hướng character system (base mesh thật → morph theo dữ liệu → stylize) sẽ hỏng ở khâu
-cuối cùng, bất kể mesh gốc tốt đến đâu.
+**Kết luận chính xác của thử nghiệm này:** silhouette của hai cấu hình cơ thể **cực đoan**
+(rất khác nhau về chiều cao/vai/mỡ/chân/mặt) không bị xoá bởi phép nén tỉ lệ "soft chibi anime"
+(~3.75 đầu). Thử nghiệm **chưa** chứng minh rằng nhận dạng khuôn mặt hay danh tính một người
+thật được bảo toàn — xem mục "Giới hạn" bên dưới để biết chính xác cái gì chưa được kiểm chứng.
+
+Ban đầu tài liệu này viết là "kiểm tra identity preservation", cách gọi đó quá mạnh so với
+những gì được test. A và B là hai cực đối lập nên bài test khá dễ; không có mắt/mũi/miệng/gò
+má/hàm thật; không có tóc/trang phục/màu — những yếu tố có thể lấn át cảm nhận khuôn mặt trong
+thực tế; chưa thử hai người gần giống nhau; chưa thử nhiều góc camera/pose/ánh sáng. Giữ
+nguyên phần dưới đây làm biên bản kỹ thuật, đã sửa lại các chỗ diễn giải quá đà.
 
 Script: `tools/blender/generate_stylization_prototype.py`. Chạy:
 
@@ -40,11 +45,16 @@ nhau trong hệ thống thật.
   với chiều dọc**, để vai rộng/hẹp và mặt rộng/hẹp vẫn còn phân biệt được sau khi nén dọc mạnh
 - Tăng nhẹ độ tròn trịa toàn thân (`girth_boost`) cho cảm giác "soft"
 
-Vì hai nhân vật dùng chung một công thức biến đổi, **tỉ lệ khác biệt giữa A và B được bảo toàn
-gần như tuyệt đối theo toán học** — đây không phải là điều cần "hy vọng đúng", mà là hệ quả
-trực tiếp của việc áp cùng một affine transform. Điều thực sự cần quan sát bằng mắt là: sau
-khi nén xuống 3.5–4 đầu, khác biệt đó có còn *nhìn thấy được* không, hay bị nuốt mất bởi hình
-dạng chibi tròn trịa.
+**Sửa lại một chỗ diễn giải sai:** đây không phải một affine transform duy nhất cho toàn thân
+— nó phóng to đầu quanh một tâm cục bộ, nén thân/chân theo một hệ số khác, tăng độ tròn, và xử
+lý từng vùng khớp riêng. Vì `stylize()` áp cùng công thức đó cho cả A và B, các tỉ lệ đo được
+(bảng dưới) gần như chắc chắn được giữ — **đây là bằng chứng script chạy đúng ý đồ code, không
+phải một phép kiểm chứng độc lập rằng thuật toán "bảo toàn identity"**. Nói cách khác: số liệu
+đẹp phần lớn vì thuật toán được viết ra để giữ đúng các tham số đem ra đo — kết luận có giá trị
+duy nhất ở đây là "cơ chế không tự phá vỡ các tỉ lệ nó được thiết kế để giữ", không hơn.
+
+Điều thực sự cần đánh giá là bằng mắt (ảnh dưới) và trong trường hợp khó hơn — hai người
+*gần giống nhau* — chứ không phải hai cực đối lập như A/B ở đây.
 
 ## Kết quả đo được
 
@@ -58,8 +68,11 @@ dạng chibi tròn trịa.
 | Độ dài chân | 0.684 m | 1.042 m | 0.656 | 0.457 m | 0.696 m | 0.656 |
 | Tỉ lệ đầu/thân | 7.38 | 7.38 | — | 3.75 | 3.75 | — |
 
-Tỉ lệ A/B gần như không đổi trước/sau stylize ở mọi chỉ số — đúng như kỳ vọng toán học ở trên.
-Bằng mắt (xem ảnh dưới), khác biệt vẫn đọc được rõ dù cả hai đã co về 3.75 đầu.
+Tỉ lệ A/B gần như không đổi trước/sau stylize ở mọi chỉ số — như đã nói ở trên, đây là hệ quả
+của cách viết `stylize()`, không phải phát hiện bất ngờ. Bằng mắt (xem ảnh dưới), khác biệt vẫn
+đọc được rõ dù cả hai đã co về 3.75 đầu — **nhưng A và B là hai cực đối lập nên đây là bài test
+dễ**; chưa chứng minh gì cho trường hợp hai người dáng người gần giống nhau (xem Prototype v1.1
+bên dưới).
 
 ## Ảnh render
 
@@ -80,6 +93,11 @@ Bằng mắt (xem ảnh dưới), khác biệt vẫn đọc được rõ dù c�
    đúng tỉ lệ tương đối.
 4. **Height/proportion** — đã test: A và B **không** bị chuẩn hoá về cùng một chiều cao,
    chênh lệch giữ nguyên tỉ lệ 0.842 trước/sau.
+
+## Tiếp theo: xem `docs/stylization-prototype-v1.1.md`
+
+v1.1 thêm cặp nhân vật gần giống nhau (ca khó hơn A/B), landmark mắt proxy, góc profile, và
+nhãn trên ảnh — trực tiếp trả lời các giới hạn được chỉ ra ở review của v1.
 
 ## Việc cần làm tiếp khi có base mesh thật
 

@@ -1,0 +1,48 @@
+{
+  "A": {
+    "params": {
+      "height_m": 1.6,
+      "shoulder_scale": 0.85,
+      "body_fat": 0.75,
+      "leg_length_scale": 0.85,
+      "face_width_scale": 1.25
+    },
+    "realistic": {
+      "total_height_m": 1.586,
+      "head_to_body_ratio_heads": 7.38,
+      "shoulder_width_m": 0.289,
+      "face_width_m": 0.288,
+      "leg_length_m": 0.684
+    },
+    "stylized": {
+      "total_height_m": 1.249,
+      "head_to_body_ratio_heads": 3.75,
+      "shoulder_width_m": 0.254,
+      "face_width_m": 0.499,
+      "leg_length_m": 0.457
+    }
+  },
+  "B": {
+    "params": {
+      "height_m": 1.9,
+      "shoulder_scale": 1.15,
+      "body_fat": 0.15,
+      "leg_length_scale": 1.15,
+      "face_width_scale": 0.8
+    },
+    "realistic": {
+      "total_height_m": 1.884,
+      "head_to_body_ratio_heads": 7.38,
+      "shoulder_width_m": 0.391,
+      "face_width_m": 0.184,
+      "leg_length_m": 1.042
+    },
+    "stylized": {
+      "total_height_m": 1.483,
+      "head_to_body_ratio_heads": 3.75,
+      "shoulder_width_m": 0.344,
+      "face_width_m": 0.319,
+      "leg_length_m": 0.696
+    }
+  }
+}

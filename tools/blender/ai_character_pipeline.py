@@ -170,18 +170,6 @@ def radial_push(coords, segments, radius, amount):
     return out
 
 
-def axis_push(coords, z_range, min_abs_x, axis, amount, edge=0.06):
-    lo, hi = z_range
-    out = [Vector((0, 0, 0)) for _ in coords]
-    for i, co in enumerate(coords):
-        if not (lo <= co.z <= hi) or abs(co.x) < min_abs_x:
-            continue
-        fall = min(1.0, min(co.z - lo, hi - co.z) / edge) if edge > 0 else 1.0
-        sign = 1.0 if co.x >= 0 else -1.0
-        out[i] = axis * (amount * fall) * (sign if axis.x != 0 else 1.0)
-    return out
-
-
 def add(*fields):
     n = len(fields[0])
     return [sum((f[i] for f in fields), Vector((0, 0, 0))) for i in range(n)]
@@ -191,16 +179,94 @@ def seg(joints, a, b):
     return (Vector(joints[a]), Vector(joints[b]))
 
 
+def bump(coords, center, extent, amount, direction=None):
+    """Smooth ellipsoidal region bump: vertices inside the ellipsoid (radii=extent)
+    around `center` move by `amount` * quadratic-falloff, either radially outward
+    (direction=None) or along a fixed `direction`. This gives anatomically-placed
+    volume (deltoid, pectoral, biceps, glute, calf) without spikes, since the falloff
+    is smooth and the region is broad."""
+    cx = Vector(center)
+    ex, ey, ez = extent
+    fixed = Vector(direction).normalized() if direction is not None else None
+    out = [Vector((0, 0, 0)) for _ in coords]
+    for i, co in enumerate(coords):
+        d = Vector(((co.x - cx.x) / ex, (co.y - cx.y) / ey, (co.z - cx.z) / ez))
+        r = d.length
+        if r >= 1.0:
+            continue
+        fall = (1.0 - r) ** 2
+        if fixed is not None:
+            out[i] = fixed * (amount * fall)
+        else:
+            dirv = co - cx
+            if dirv.length < 1e-6:
+                continue
+            out[i] = dirv.normalized() * (amount * fall)
+    return out
+
+
+def mirror_bumps(coords, center_L, extent, amount, direction_L=None):
+    """Place a symmetric pair of bumps at +/-X. For a fixed direction, the X sign is
+    mirrored so both sides push outward consistently."""
+    cx, cy, cz = center_L
+    right_dir = None
+    if direction_L is not None:
+        right_dir = (-direction_L[0], direction_L[1], direction_L[2])
+    return add(
+        bump(coords, (cx, cy, cz), extent, amount, direction_L),
+        bump(coords, (-cx, cy, cz), extent, amount, right_dir),
+    )
+
+
+def shoulder_wide_field(coords, joints, amount=0.075):
+    """Widen the shoulders: push the deltoid/upper-arm-root region outward along X so
+    the shoulder span visibly broadens. Peak at shoulder height, smooth falloff — no
+    spike. Also nudges the very top of the arm outward so the silhouette widens."""
+    out = [Vector((0, 0, 0)) for _ in coords]
+    z_peak, z_span = 1.44, 0.16
+    for i, co in enumerate(coords):
+        if abs(co.x) < 0.04 or abs(co.z - z_peak) > z_span:
+            continue
+        zfall = (1.0 - abs(co.z - z_peak) / z_span) ** 2
+        # taper laterally so the outer arm is carried out a bit but the hand is not
+        lat = max(0.0, 1.0 - max(0.0, abs(co.x) - 0.30) / 0.25)
+        sign = 1.0 if co.x >= 0 else -1.0
+        out[i] = Vector((sign * amount * zfall * lat, 0, 0))
+    return out
+
+
+def waist_narrow_field(coords, joints, amount=0.075):
+    """Pull the waist in (both X and Y) with a torso-only vertical falloff centred on
+    the waist station, for a clear V-taper."""
+    out = [Vector((0, 0, 0)) for _ in coords]
+    z_waist, z_span = 1.17, 0.13
+    for i, co in enumerate(coords):
+        if abs(co.z - z_waist) > z_span:
+            continue
+        # only the torso shell, not arms passing nearby
+        if abs(co.x) > 0.22:
+            continue
+        zfall = (1.0 - abs(co.z - z_waist) / z_span) ** 2
+        radial = Vector((co.x, co.y, 0.0))
+        if radial.length < 1e-6:
+            continue
+        out[i] = radial.normalized() * (-amount * zfall)
+    return out
+
+
 def fat_field(coords, joints, s=1.0):
-    """Belly + waist + hips + chest fullness + face fullness (the fat direction)."""
+    """Belly (front-heavy) + waist + hips/glute + chest fullness + fuller face."""
     torso = [seg(joints, "pelvis", "belly"), seg(joints, "belly", "waist"),
              seg(joints, "waist", "chest")]
     hips = [seg(joints, "pelvis", "thigh.L"), seg(joints, "pelvis", "thigh.R")]
     head = [seg(joints, "head", "head")]
+    belly_front = bump(coords, (0.0, 0.13, 1.07), (0.16, 0.14, 0.14), 0.06 * s, direction=(0, 1, 0))
+    glute = mirror_bumps(coords, (0.08, -0.10, 0.95), (0.12, 0.12, 0.14), 0.035 * s, direction_L=(0, -1, 0))
     return add(
         radial_push(coords, torso, radius=0.30, amount=0.075 * s),
-        radial_push(coords, hips, radius=0.24, amount=0.045 * s),
-        radial_push(coords, head, radius=0.14, amount=0.030 * s),
+        radial_push(coords, hips, radius=0.24, amount=0.05 * s),
+        radial_push(coords, head, radius=0.14, amount=0.032 * s),
+        belly_front, glute,
     )
 
 
@@ -209,32 +275,36 @@ def thin_field(coords, joints, s=1.0):
             seg(joints, "waist", "chest"),
             seg(joints, "upper_arm.L", "forearm.L"), seg(joints, "upper_arm.R", "forearm.R"),
             seg(joints, "thigh.L", "shin.L"), seg(joints, "thigh.R", "shin.R")]
-    return radial_push(coords, body, radius=0.26, amount=-0.045 * s)
+    return radial_push(coords, body, radius=0.26, amount=-0.05 * s)
 
 
 def muscle_field(coords, joints, s=1.0):
-    limbs = [seg(joints, "upper_arm.L", "forearm.L"), seg(joints, "upper_arm.R", "forearm.R"),
-             seg(joints, "thigh.L", "shin.L"), seg(joints, "thigh.R", "shin.R"),
-             seg(joints, "waist", "chest")]
-    shoulders = axis_push(coords, (1.36, 1.50), 0.09, Vector((1, 0, 0)), 0.035)
-    return add(radial_push(coords, limbs, radius=0.20, amount=0.05 * s), shoulders)
+    """Region-aware: deltoid, pectoral, biceps, thigh and calf bumps, so the muscular
+    direction reads anatomically rather than as a uniform tube inflation."""
+    deltoid = mirror_bumps(coords, (0.17, 0.0, 1.44), (0.11, 0.11, 0.10), 0.045 * s)
+    pectoral = mirror_bumps(coords, (0.07, 0.11, 1.33), (0.10, 0.09, 0.10), 0.04 * s, direction_L=(0, 1, 0))
+    biceps = mirror_bumps(coords, (0.275, 0.0, 1.335), (0.09, 0.09, 0.13), 0.04 * s)
+    thigh = mirror_bumps(coords, (0.10, 0.0, 0.80), (0.13, 0.13, 0.16), 0.045 * s)
+    calf = mirror_bumps(coords, (0.10, -0.02, 0.38), (0.10, 0.10, 0.12), 0.04 * s)
+    shoulders = shoulder_wide_field(coords, joints, amount=0.03 * s)
+    return add(deltoid, pectoral, biceps, thigh, calf, shoulders)
 
 
 def morph_fields(coords, joints):
     """The 10 body morphs as analytic fields on the frozen base."""
     return {
         "body_muscle": muscle_field(coords, joints),
-        "body_fat": fat_field(coords, joints, s=0.85),
+        "body_fat": fat_field(coords, joints, s=0.9),
         "body_thin": thin_field(coords, joints),
-        "shoulder_wide": axis_push(coords, (1.34, 1.50), 0.08, Vector((1, 0, 0)), 0.045, edge=0.09),
-        "waist_narrow": radial_push(coords, [seg(joints, "belly", "waist")], radius=0.20, amount=-0.035),
-        "chest_thick": axis_push(coords, (1.24, 1.40), 0.0, Vector((0, 1, 0)), 0.04),
+        "shoulder_wide": shoulder_wide_field(coords, joints, amount=0.075),
+        "waist_narrow": waist_narrow_field(coords, joints, amount=0.055),
+        "chest_thick": mirror_bumps(coords, (0.06, 0.12, 1.33), (0.12, 0.10, 0.12), 0.05, direction_L=(0, 1, 0)),
         "arm_mass": radial_push(coords, [seg(joints, "upper_arm.L", "forearm.L"), seg(joints, "forearm.L", "hand.L"),
                                           seg(joints, "upper_arm.R", "forearm.R"), seg(joints, "forearm.R", "hand.R")],
-                                radius=0.14, amount=0.04),
+                                radius=0.13, amount=0.05),
         "leg_mass": radial_push(coords, [seg(joints, "thigh.L", "shin.L"), seg(joints, "shin.L", "foot.L"),
                                           seg(joints, "thigh.R", "shin.R"), seg(joints, "shin.R", "foot.R")],
-                                radius=0.16, amount=0.045),
+                                radius=0.15, amount=0.055),
         "height_tall": [Vector((0, 0, co.z * 0.06)) for co in coords],
         "height_short": [Vector((0, 0, -co.z * 0.06)) for co in coords],
     }
@@ -245,7 +315,7 @@ def variant_field(name, coords, joints):
     if name == "lean":
         return thin_field(coords, joints, s=1.0)
     if name == "fat":
-        return fat_field(coords, joints, s=1.15)
+        return fat_field(coords, joints, s=1.2)
     return [Vector((0, 0, 0)) for _ in coords]
 
 
@@ -319,6 +389,9 @@ def build_mesh(name, verts, faces):
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.mesh.normals_make_consistent(inside=False)
+    # Smart UV Project so the GLB carries a TEXCOORD_0 (unblocks skin/clothing tint,
+    # texture-memory and UV-padding review). Auto-unwrap, not a hand-laid production UV.
+    bpy.ops.uv.smart_project(angle_limit=1.15, island_margin=0.02)
     bpy.ops.object.mode_set(mode="OBJECT")
     bpy.ops.object.shade_smooth()
     mat = bpy.data.materials.new("skin")
@@ -381,7 +454,11 @@ def add_animations(arm_obj):
         kf("upper_arm.R", f, rot=(ang, 0, 0))
     new_action("showcase")
     n = int(4 * fps)
-    for f, ang in [(1, 0.0), (n, math.radians(360))]:
+    # Seamless turntable: the last frame stops one frame-step short of a full turn, so
+    # frame n and frame 1 are NOT the same 0deg/360deg pose. Looping frame n -> 1 then
+    # advances exactly one step, with no duplicate-endpoint hitch.
+    last_angle = 360.0 * (n - 1) / n
+    for f, ang in [(1, 0.0), (n, math.radians(last_angle))]:
         kf("hips", f, rot=(0, 0, ang))
     bpy.ops.object.mode_set(mode="OBJECT")
 

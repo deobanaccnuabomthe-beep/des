@@ -38,7 +38,19 @@
     "boundary_edges": 0,
     "non_manifold_edges": 0,
     "connected_components": 1,
+    "has_uv": true,
+    "uv_method": "Blender Smart UV Project (auto-unwrap; unblocks tint/texture workflow, not a hand-laid production UV)",
     "note": "one frozen Skin-modifier base M; average = M, lean/fat = M + a thin/fat displacement baked into the basis; every shape key is an analytic displacement of the same frozen vertex list, so topology is identical everywhere"
+  },
+  "morph_effectiveness": {
+    "measured_by": "render_character_qa.py local shoulder-width (z~1.44) and torso-only waist-width (z~1.17) metrics",
+    "shoulder_wide_shoulder_width_gain_m": 0.04,
+    "waist_narrow_waist_width_reduction_m": 0.06,
+    "note": "region-aware deltoid/pectoral/biceps/thigh/calf bumps for muscle; front-heavy belly + glute for fat; all smooth (no spikes), topology preserved"
+  },
+  "deformation_qa": {
+    "test": "body_muscle=1.0 + waist_narrow=0.8, shoulders and hips rotated, then check exploded/collapsed/non-manifold",
+    "result": "PASS on all variants (vertex reach ~1.75m, posed height ~1.70m, 0 non-manifold edges)"
   },
   "canonical_base": "average.glb",
   "comparison_outputs": ["lean.glb", "fat.glb"],
@@ -96,9 +108,10 @@
   },
   "known_limitations": [
     "Procedural Skin-modifier surface, watertight and manifold, but NOT a sculpted production base mesh: no deliberate facial edge flow, minimal hands/feet detail, generic quad-ish flow from the Skin modifier.",
-    "No UV / no texture (validator reports UV absence as a WARN, not a failure).",
-    "Face is out of scope: head shape + approximate face fullness only; NO facial identity claim. Eye landmarks are a separate proxy experiment (docs/stylization-prototype-v1.1.md).",
-    "Auto (envelope) skin weights, not hand-painted; adequate for prototype deformation, not production.",
+    "UV is an auto Smart-UV-Project set (TEXCOORD_0 present, tint/texture workflow unblocked), NOT a hand-laid production UV with reviewed padding/islands.",
+    "No texture maps yet (neutral material color only).",
+    "FACE IS OUT OF SCOPE: the 8 facial morphs (face_wide/narrow, jaw, eyes, nose) are NOT present on the procedural body and are NOT faked on a smooth head. The full 18-morph profile therefore fails by design; the body profile is the target for this iteration. Facial topology + morphs require a real production base mesh (a V3 face experiment behind a separate adapter). Eye-marker proxies in the stylization prototype are NOT facial validation.",
+    "Auto (envelope) skin weights, not hand-painted; deformation QA confirms they hold under posing+morphs, but they are not production-tuned.",
     "NOT PRODUCTION APPROVED. Suitable for pipeline validation and body-proportion prototyping only."
   ]
 }

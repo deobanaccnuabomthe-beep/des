@@ -17,12 +17,16 @@ export function computeBlendShapeValues(stats: UserCharacterStats): BlendShapeVa
   const values: Record<string, number> = {};
 
   values.body_muscle = clamp01(stats.workout.trainingConsistency);
-  // fatRatio is 0 (lean) .. 1 (high fat); split around the midpoint so only one of
+  // compositionRatio is a normalized composition signal: 0 = lean (body_thin), 0.5 =
+  // neutral (no morph), 1 = heavy (body_fat). Split around the midpoint so only one of
   // body_fat/body_thin is ever non-zero, per spec section 4/4c.
-  splitSigned(stats.body.fatRatio, 'body_fat', 'body_thin', values);
+  const composition = stats.body.compositionRatio;
+  splitSigned(composition, 'body_fat', 'body_thin', values);
 
   values.shoulder_wide = clamp01(stats.workout.upperBodyVolume);
-  values.waist_narrow = clamp01(1 - stats.body.fatRatio);
+  // V-taper: only leaner-than-neutral composition narrows the waist (0 at/above
+  // neutral, 1 at maximally lean), matching spec 4 ("tỉ lệ mỡ giảm").
+  values.waist_narrow = clamp01((0.5 - composition) / 0.5);
   values.chest_thick = clamp01(stats.workout.chestVolume);
   values.arm_mass = clamp01(stats.workout.armVolume);
   values.leg_mass = clamp01(stats.workout.legVolume);

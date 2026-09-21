@@ -1,7 +1,7 @@
 """
 Morph + variant QA for an AI-prototype character GLB.
 
-Every image is watermarked PROTOTYPE / AI_GENERATED / NOT_PRODUCTION_APPROVED.
+Every image is watermarked PROTOTYPE / PROCEDURAL_GENERATED / NOT_PRODUCTION_APPROVED.
 
 Produces, for one input GLB:
   - front / side / three-quarter neutral QA renders,
@@ -40,7 +40,7 @@ COMBOS = {
     "combo_fat_tall": {"body_fat": 1.0, "height_tall": 1.0},
     "combo_thin_short": {"body_thin": 1.0, "height_short": 1.0},
 }
-WATERMARK = "PROTOTYPE / AI_GENERATED / NOT_PRODUCTION_APPROVED"
+WATERMARK = "PROTOTYPE / PROCEDURAL_GENERATED / NOT_PRODUCTION_APPROVED"
 
 RES = 640
 
@@ -112,9 +112,30 @@ def mesh_metrics(obj, deps):
 
     bm = bmesh.new()
     bm.from_mesh(me)
+    # Weld coincident verts first: glTF/UV seams split vertices, which would otherwise
+    # read as false boundary edges. Topology is judged on the position-welded surface.
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
     boundary = sum(1 for e in bm.edges if len(e.link_faces) == 1)
     non_manifold = sum(1 for e in bm.edges if len(e.link_faces) > 2)
     vert_count = len(bm.verts)
+
+    # LOCAL metrics at fixed heights (fractions of total height), so shoulder_wide /
+    # waist_narrow are measured where they act — not masked by whole-body width, which
+    # is dominated by the arms (review items 4 & 5).
+    total_h = max(zs) - min(zs)
+    base_z = min(zs)
+
+    def width_at(frac, band=0.03, max_abs_x=None):
+        z0 = base_z + total_h * frac
+        xs_band = []
+        for v in me.vertices:
+            w = mw @ v.co
+            if abs(w.z - z0) <= band and (max_abs_x is None or abs(w.x) <= max_abs_x):
+                xs_band.append(w.x)
+        return round(max(xs_band) - min(xs_band), 4) if xs_band else 0.0
+
+    shoulder_width = width_at(0.82)                  # shoulder+deltoid span (z~1.44)
+    waist_width = width_at(0.668, max_abs_x=0.22)    # torso only at the waist station (z~1.17)
     # informational only:
     cx = sum(xs) / len(xs)
     cy = sum(ys) / len(ys)
@@ -137,6 +158,8 @@ def mesh_metrics(obj, deps):
         "boundary_edges": boundary,
         "non_manifold_edges": non_manifold,
         "vertex_count": vert_count,
+        "shoulder_width_m": shoulder_width,
+        "waist_width_m": waist_width,
         "faces_inward_normal_frac_INFO_ONLY": round(frac_inward, 3),
     }
     ev.to_mesh_clear()
@@ -202,6 +225,66 @@ def contact_sheet(paths, out_path, cols=5):
     sheet.save(out_path)
 
 
+def deformation_qa(scene, cam, mesh_obj, outdir, variant, report):
+    """Pose the rig at extreme angles while morphs are high, then check the deformed
+    skin for explosion / collapse / new non-manifold edges. Renders a posed frame.
+    Explosion and collapse are HARD flags (added to report['flags'])."""
+    import math as _m
+    arm = next((o for o in bpy.data.objects if o.type == "ARMATURE"), None)
+    result = {"available": arm is not None}
+    if arm is None:
+        return result
+
+    set_morphs(mesh_obj, {"body_muscle": 1.0, "waist_narrow": 0.8})
+    prev = bpy.context.view_layer.objects.active
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.mode_set(mode="POSE")
+    poses = {"upper_arm.L": (0, 0, _m.radians(-40)), "upper_arm.R": (0, 0, _m.radians(40)),
+             "thigh.L": (_m.radians(25), 0, 0), "thigh.R": (_m.radians(-25), 0, 0)}
+    for bone, euler in poses.items():
+        pb = arm.pose.bones.get(bone)
+        if pb:
+            pb.rotation_mode = "XYZ"
+            pb.rotation_euler = euler
+    bpy.ops.object.mode_set(mode="OBJECT")
+    bpy.context.view_layer.update()
+
+    deps = bpy.context.evaluated_depsgraph_get()
+    m = mesh_metrics(mesh_obj, deps)
+    # explosion: any vertex absurdly far from origin; collapse: body shorter than 1.2 m
+    ev = mesh_obj.evaluated_get(deps)
+    me = ev.to_mesh()
+    mw = mesh_obj.matrix_world
+    max_reach = max((mw @ v.co).length for v in me.vertices)
+    ev.to_mesh_clear()
+    result.update({"posed": m, "max_vertex_reach_m": round(max_reach, 3)})
+    if max_reach > 3.0:
+        report["flags"].append(f"deformation: vertex reach {max_reach:.2f}m (>3m = exploded)")
+    if m["height_m"] < 1.2:
+        report["flags"].append(f"deformation: posed height {m['height_m']}m (<1.2m = collapsed)")
+    if m["non_manifold_edges"] > 0:
+        report["flags"].append(f"deformation: {m['non_manifold_edges']} non-manifold edge(s) under pose")
+
+    pth = os.path.join(outdir, f"{variant}_deformation_pose.png")
+    place_camera(cam, "three_quarter", (0.0, 0.0, m["height_m"] / 2), m["height_m"])
+    scene.render.filepath = pth
+    bpy.ops.render.render(write_still=True)
+    label(pth, f"{variant} deformation (muscle=1, waist=0.8, shoulders+hips posed)",
+          f"reach={result['max_vertex_reach_m']}m h={m['height_m']}m")
+
+    # reset pose + morphs
+    bpy.context.view_layer.objects.active = arm
+    bpy.ops.object.mode_set(mode="POSE")
+    for bone in poses:
+        pb = arm.pose.bones.get(bone)
+        if pb:
+            pb.rotation_euler = (0, 0, 0)
+    bpy.ops.object.mode_set(mode="OBJECT")
+    set_morphs(mesh_obj, {})
+    bpy.context.view_layer.objects.active = prev
+    return result
+
+
 def main():
     inp, outdir = parse_args()
     os.makedirs(outdir, exist_ok=True)
@@ -265,6 +348,26 @@ def main():
         report["combos"][name] = {"values": values, **m}
         sweep_imgs.append(pth)
         hard_check(name, m, ref_vcount)
+
+    # Morph effectiveness (review items 4 & 5): the local metric must move in the
+    # expected direction by a meaningful amount across the 0->1 sweep.
+    def sweep_metric(morph, key):
+        s = report["morph_sweeps"][morph]
+        return s[0][key], s[-1][key]
+
+    sw0, sw1 = sweep_metric("shoulder_wide", "shoulder_width_m")
+    report["shoulder_wide_effect_m"] = round(sw1 - sw0, 4)
+    if sw1 - sw0 < 0.03:
+        report["flags"].append(f"shoulder_wide barely changes shoulder width ({sw0}->{sw1})")
+
+    ww0, ww1 = sweep_metric("waist_narrow", "waist_width_m")
+    report["waist_narrow_effect_m"] = round(ww0 - ww1, 4)
+    if ww0 - ww1 < 0.02:
+        report["flags"].append(f"waist_narrow barely changes waist width ({ww0}->{ww1})")
+
+    # Deformation QA: pose the rig WITH morphs at high values and check the skin does
+    # not explode/collapse (spec: shoulders and waist are the risky spots under morph).
+    report["deformation"] = deformation_qa(scene, cam, mesh_obj, outdir, variant, report)
 
     contact_sheet(sweep_imgs, os.path.join(outdir, f"{variant}_contact_sheet.png"))
     with open(os.path.join(outdir, f"{variant}_qa_report.json"), "w") as f:

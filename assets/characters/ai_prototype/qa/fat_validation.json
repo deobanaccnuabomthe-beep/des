@@ -18,7 +18,7 @@
     {
       "check": "yup_axis",
       "ok": true,
-      "detail": "tallest axis is Y (max=[0.5373355746269226, 1.7500001192092896, 0.16590183973312378]) -> Y-up",
+      "detail": "tallest axis is Y (max=[0.5371891856193542, 1.75, 0.18863222002983093]) -> Y-up",
       "required": true
     },
     {
@@ -41,8 +41,8 @@
     },
     {
       "check": "has_uv",
-      "ok": false,
-      "detail": "TEXCOORD_0 present=False",
+      "ok": true,
+      "detail": "TEXCOORD_0 present=True",
       "required": false
     },
     {
@@ -54,7 +54,7 @@
     {
       "check": "vertex_count",
       "ok": true,
-      "detail": "2698 vertices",
+      "detail": "3646 vertices",
       "required": false
     },
     {
@@ -156,7 +156,7 @@
     {
       "check": "thigh_not_snapped",
       "ok": true,
-      "detail": "thigh.L is 0.094m off centerline (snapped bug would be ~0)",
+      "detail": "thigh.L is 0.093m off centerline (snapped bug would be ~0)",
       "required": true
     }
   ]

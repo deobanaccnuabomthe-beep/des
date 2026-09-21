@@ -18,7 +18,7 @@
     {
       "check": "yup_axis",
       "ok": true,
-      "detail": "tallest axis is Y (max=[0.5385488271713257, 1.75, 0.10321658849716187]) -> Y-up",
+      "detail": "tallest axis is Y (max=[0.5385394096374512, 1.75, 0.10156835615634918]) -> Y-up",
       "required": true
     },
     {
@@ -41,8 +41,8 @@
     },
     {
       "check": "has_uv",
-      "ok": false,
-      "detail": "TEXCOORD_0 present=False",
+      "ok": true,
+      "detail": "TEXCOORD_0 present=True",
       "required": false
     },
     {
@@ -54,7 +54,7 @@
     {
       "check": "vertex_count",
       "ok": true,
-      "detail": "2698 vertices",
+      "detail": "3688 vertices",
       "required": false
     },
     {

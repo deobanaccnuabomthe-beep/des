@@ -7,15 +7,16 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/**/*.test.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.0",
     "@react-three/fiber": "^8.17.10",
     "expo": "~51.0.0",
     "expo-asset": "~10.0.10",
-    "expo-gl": "~14.0.2",
     "expo-file-system": "~17.0.1",
+    "expo-gl": "~14.0.2",
     "react": "18.2.0",
     "react-native": "0.74.5",
     "three": "^0.169.0"
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@types/react": "~18.2.79",
     "@types/three": "^0.169.0",
+    "tsx": "^4.23.15",
     "typescript": "~5.3.3"
   }
 }

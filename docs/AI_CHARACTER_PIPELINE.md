@@ -87,8 +87,9 @@ naming does not match the required convention (see `PLUGIN_STATUS.md`).
 
 ### 3. What is still only a placeholder
 - Procedural Skin-modifier surface — watertight and manifold, but NOT a sculpted production base mesh: no deliberate facial edge flow, minimal hands/feet, generic flow from the Skin modifier.
-- No UV and no texture.
-- Auto envelope skin weights, not hand-painted.
+- UV is an auto Smart-UV-Project set (TEXCOORD_0 present, tint workflow unblocked), not a hand-laid production UV; no texture maps yet.
+- Auto envelope skin weights, not hand-painted (deformation QA confirms they hold under posing+morphs, but they are not production-tuned).
+- No facial morphs on the procedural body (face is out of scope — see item 4).
 - `NOT_PRODUCTION_APPROVED` — use for pipeline validation and proportion prototyping only.
 
 ### 4. What requires a future face-specific experiment (V3)

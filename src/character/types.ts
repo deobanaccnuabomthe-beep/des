@@ -20,8 +20,16 @@ export interface BodyMetrics {
   weightKg: number;
   /** Reference height for this user's chosen base mesh gender/build, from onboarding. */
   referenceHeightCm: number;
-  /** 0–1, estimated body fat percentage relative to a healthy band. Drives waist_narrow. */
-  fatRatio: number;
+  /**
+   * NORMALIZED body-composition signal, NOT an absolute body-fat percentage:
+   *   0.0 = maximally lean   -> body_thin = 1
+   *   0.5 = neutral          -> body_fat = body_thin = 0
+   *   1.0 = maximally heavy   -> body_fat = 1
+   * The app maps a user's body-fat estimate into this band (0.5 = middle of their
+   * healthy band) before setting it here. body_fat/body_thin are an opposing pair, so
+   * only one side is ever non-zero (spec 4c).
+   */
+  compositionRatio: number;
 }
 
 /** Normalized 0–1 landmark ratios from the on-device face-mesh extraction (spec 4b). */
